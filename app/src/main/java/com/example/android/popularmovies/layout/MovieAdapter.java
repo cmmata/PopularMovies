@@ -5,16 +5,20 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder>{
 
     private List<MoviesResult> mMovieList;
+    private Context context;
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -44,10 +48,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      */
     public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final TextView mMovieTextView;
+        public final ImageView mImageView;
 
         public MovieAdapterViewHolder(View view) {
             super(view);
             mMovieTextView = (TextView) view.findViewById(R.id.movie_title);
+            mImageView = (ImageView) view.findViewById(R.id.movie_thumb);
             view.setOnClickListener(this);
         }
 
@@ -77,7 +83,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      */
     @Override
     public MovieAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        Context context = viewGroup.getContext();
+        context = viewGroup.getContext();
         int layoutIdForListItem = R.layout.movie_list_item;
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
@@ -100,6 +106,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     public void onBindViewHolder(MovieAdapterViewHolder movieAdapterViewHolder, int position) {
         MoviesResult movieSelected = mMovieList.get(position);
         movieAdapterViewHolder.mMovieTextView.setText(movieSelected.getOriginalTitle());
+        String imageUrl = movieSelected.getPosterPath();
+        Picasso.with(context).load(imageUrl).into(movieAdapterViewHolder.mImageView);
     }
 
     /**

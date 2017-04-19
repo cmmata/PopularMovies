@@ -59,6 +59,8 @@ public class MoviesResult {
     @Expose
     private Double voteAverage;
 
+    private static String THUMB_URL = "http://image.tmdb.org/t/p/w185/";
+
     /**
      * No args constructor for use in serialization
      *
@@ -102,7 +104,7 @@ public class MoviesResult {
     }
 
     public String getPosterPath() {
-        return posterPath;
+        return THUMB_URL + posterPath;
     }
 
     public void setPosterPath(String posterPath) {

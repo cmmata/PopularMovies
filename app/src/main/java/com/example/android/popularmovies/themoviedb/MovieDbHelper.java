@@ -48,7 +48,7 @@ public class MovieDbHelper {
      */
     private static String PARAM_PAGE = "page";
 
-    //One can set the API response language by using the parameter '&language=es'
+    //TODO One can set the API response language by using the parameter '&language=es'
 
     /**
      * Constructor

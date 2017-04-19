@@ -3,12 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:padding="5dp"
-    android:layout_width="100dp"
-    android:layout_height="100dp">
+    android:layout_width="200dp"
+    android:layout_height="300dp">
+
+    <ImageView
+        android:id="@+id/movie_thumb"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <TextView
         android:id="@+id/movie_title"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"/>
+        android:gravity="bottom"/>
 </LinearLayout>
