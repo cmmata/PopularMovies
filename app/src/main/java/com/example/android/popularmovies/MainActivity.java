@@ -8,13 +8,13 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.example.android.popularmovies.layout.MovieAdapter;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
-import com.example.android.popularmovies.util.NetworkUtils;
+import com.example.android.popularmovies.themoviedb.MoviesList;
+import com.example.android.popularmovies.themoviedb.MoviesResult;
 
-import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         setContentView(R.layout.activity_main);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_main);
         //Set LayoutManager
-        int numberOfColumns = 3;
+        int numberOfColumns = 2;
         GridLayoutManager layoutManager = new GridLayoutManager(this, numberOfColumns);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
@@ -45,25 +45,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void onClick(String movieSelected) {
+    public void onClick(MoviesResult movieSelected) {
         Context context = this;
         //TODO open details activity
     }
 
-    public class fetchMoviesTask extends AsyncTask<URL, Void, String[]> {
+    public class fetchMoviesTask extends AsyncTask<URL, Void, MoviesList> {
 
         @Override
-        protected String[] doInBackground(URL... params) {
-            String[] movies = movieDbHelper.getMovies();
+        protected MoviesList doInBackground(URL... params) {
+            MoviesList movies = movieDbHelper.getMovies();
 
             return movies;
         }
 
-        // COMPLETED (3) Override onPostExecute to display the results in the TextView
         @Override
-        protected void onPostExecute(String[] movies) {
-            if (movies != null && movies.length > 0) {
-                mMovieAdapter.setData(movies);
+        protected void onPostExecute(MoviesList moviesList) {
+            if (moviesList != null && moviesList.getTotalResults() > 0) {
+                mMovieAdapter.setData(moviesList.getResults());
             }
         }
     }

@@ -8,10 +8,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.themoviedb.MoviesResult;
+
+import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder>{
 
-    private String[] mMovie;
+    private List<MoviesResult> mMovieList;
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -23,7 +26,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      * The interface that receives onClick messages.
      */
     public interface MovieAdapterOnClickHandler {
-        void onClick(String movieSelected);
+        void onClick(MoviesResult movieSelected);
     }
 
     /**
@@ -56,7 +59,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String movieSelected = mMovie[adapterPosition];
+            MoviesResult movieSelected = mMovieList.get(adapterPosition);
             mClickHandler.onClick(movieSelected);
         }
     }
@@ -95,8 +98,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      */
     @Override
     public void onBindViewHolder(MovieAdapterViewHolder movieAdapterViewHolder, int position) {
-        String movieSelected = mMovie[position];
-        movieAdapterViewHolder.mMovieTextView.setText(movieSelected);
+        MoviesResult movieSelected = mMovieList.get(position);
+        movieAdapterViewHolder.mMovieTextView.setText(movieSelected.getOriginalTitle());
     }
 
     /**
@@ -107,12 +110,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      */
     @Override
     public int getItemCount() {
-        if (null == mMovie) return 0;
-        return mMovie.length;
+        if (null == mMovieList) return 0;
+        return mMovieList.size();
     }
 
-    public void setData(String[] weatherData) {
-        mMovie = weatherData;
+    /**
+     * Sets Adapter data
+     * @param moviesData List of MoviesResult
+     */
+    public void setData(List<MoviesResult> moviesData) {
+        mMovieList = moviesData;
         notifyDataSetChanged();
     }
 }

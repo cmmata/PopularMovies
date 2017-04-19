@@ -5,10 +5,12 @@ import android.net.Uri;
 
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.util.NetworkUtils;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 /**
  * Class to interact with The Movie DB's API
@@ -41,6 +43,11 @@ public class MovieDbHelper {
      */
     private static String PARAM_API = "api_key";
 
+    /**
+     * Results page parameter
+     */
+    private static String PARAM_PAGE = "page";
+
     //One can set the API response language by using the parameter '&language=es'
 
     /**
@@ -71,12 +78,25 @@ public class MovieDbHelper {
     }
 
     /**
-     * List movies, sorted by order
+     * List movies from the first page, sorted by order
+     *
+     * @return movies list
      */
-    public String[] getMovies() {
+    public MoviesList getMovies() {
+        return getMovies(1);
+    }
+
+    /**
+     * List movies from the page pageNumber, sorted by order
+     * @param pageNumber Page number
+     *
+     * @return movies list
+     */
+    public MoviesList getMovies(int pageNumber) {
         Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
                 .appendPath(order)
                 .appendQueryParameter(PARAM_API, api_token)
+                .appendQueryParameter(PARAM_PAGE, String.valueOf(pageNumber))
                 .build();
         URL movieDbUrl = null;
         try {
@@ -90,8 +110,9 @@ public class MovieDbHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String[] test = {movieResults};
+        Gson gson = new Gson();
+        MoviesList moviesList = gson.fromJson(movieResults, MoviesList.class);
 
-        return test;
+        return moviesList;
     }
 }
