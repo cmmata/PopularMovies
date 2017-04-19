@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Popular Movies</string>
+    <string name="error_message">An error has occurred. Please try again by clicking REFRESH button</string>
 </resources>
