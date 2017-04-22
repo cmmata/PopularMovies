@@ -2,16 +2,9 @@ package com.example.android.popularmovies.themoviedb;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
-
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.util.NetworkUtils;
 import com.google.gson.Gson;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
 /**
  * Class to interact with The Movie DB's API
@@ -91,7 +84,7 @@ public class MovieDbHelper {
      * List movies from the page pageNumber, sorted by order
      * @param pageNumber Page number
      *
-     * @return movies list
+     * @return Movies list
      */
     public MoviesList getMovies(int pageNumber) {
         Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
@@ -99,20 +92,26 @@ public class MovieDbHelper {
                 .appendQueryParameter(PARAM_API, apiToken)
                 .appendQueryParameter(PARAM_PAGE, String.valueOf(pageNumber))
                 .build();
-        URL movieDbUrl = null;
-        try {
-            movieDbUrl = new URL(movieDbApiUrl.toString());
-        } catch (MalformedURLException e) {
-            Log.e("PopularMovies", "exception", e);
-        }
-        String movieResults = null;
-        try {
-            movieResults = NetworkUtils.getResponseFromHttpUrl(movieDbUrl);
-        } catch (IOException e) {
-            Log.e("PopularMovies", "exception", e);
-        }
+        String movieResults = NetworkUtils.getApiCallResult(movieDbApiUrl);
         Gson gson = new Gson();
 
         return gson.fromJson(movieResults, MoviesList.class);
+    }
+
+    /**
+     * Get the movie details
+     * @param movieId Movie's ID
+     *
+     * @return Movie details
+     */
+    public Movie getMovieDetails(String movieId) {
+        Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
+                .appendPath(movieId)
+                .appendQueryParameter(PARAM_API, apiToken)
+                .build();
+        String movieDetails = NetworkUtils.getApiCallResult(movieDbApiUrl);
+        Gson gson = new Gson();
+
+        return gson.fromJson(movieDetails, Movie.class);
     }
 }

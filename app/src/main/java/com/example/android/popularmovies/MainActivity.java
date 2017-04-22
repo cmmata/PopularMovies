@@ -1,6 +1,7 @@
 package com.example.android.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.example.android.popularmovies.layout.MovieAdapter;
+import com.example.android.popularmovies.layout.MovieDetailsActivity;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.MoviesList;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
@@ -52,21 +54,40 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         new fetchMoviesTask().execute();
     }
 
+    /**
+     * Open the clicked movie's details
+     * @param movieSelected Movie selected by the thumbnail
+     */
     @Override
     public void onClick(MoviesResult movieSelected) {
         Context context = this;
-        //TODO open details activity
+        Class detailsClass = MovieDetailsActivity.class;
+        Intent intentToStartMovieDetails = new Intent(context, detailsClass);
+        intentToStartMovieDetails.putExtra(Intent.EXTRA_TEXT, String.valueOf(movieSelected.getId()));
+        startActivity(intentToStartMovieDetails);
     }
 
-    public class fetchMoviesTask extends AsyncTask<URL, Void, MoviesList> {
+    /**
+     * AsyncTask to fetch movies data
+     */
+    private class fetchMoviesTask extends AsyncTask<URL, Void, MoviesList> {
 
+        /**
+         * Tasks to do in background, like fetch movie thumbnails
+         * @param params Parameters
+         *
+         * @return List of movies
+         */
         @Override
         protected MoviesList doInBackground(URL... params) {
-            MoviesList movies = movieDbHelper.getMovies();
 
-            return movies;
+            return movieDbHelper.getMovies();
         }
 
+        /**
+         * Tasks to be executed when doInBackground finishes
+         * @param moviesList Movies list, fetched from API
+         */
         @Override
         protected void onPostExecute(MoviesList moviesList) {
             if (moviesList != null && moviesList.getTotalResults() > 0) {
