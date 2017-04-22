@@ -2,6 +2,7 @@ package com.example.android.popularmovies.themoviedb;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.util.NetworkUtils;
@@ -19,14 +20,14 @@ import java.util.List;
 public class MovieDbHelper {
 
     /**
-     * API Token
-     */
-    private String api_token;
+    * API Token
+    */
+    private String apiToken;
 
     /**
      * Default order when we open the App
      */
-    private String default_order = "popular";
+    private String defaultOrder = "popular";
 
     /**
      * Selected order (popular / top_rated)
@@ -36,17 +37,17 @@ public class MovieDbHelper {
     /**
      * URL to call
      */
-    private static String API_URL = "http://api.themoviedb.org/3/movie/";
+    private static final String API_URL = "http://api.themoviedb.org/3/movie/";
 
     /**
      * API Key parameter
      */
-    private static String PARAM_API = "api_key";
+    private static final String PARAM_API = "api_key";
 
     /**
      * Results page parameter
      */
-    private static String PARAM_PAGE = "page";
+    private static final String PARAM_PAGE = "page";
 
     //TODO One can set the API response language by using the parameter '&language=es'
 
@@ -55,8 +56,8 @@ public class MovieDbHelper {
      * @param context App's context
      */
     public MovieDbHelper(Context context) {
-        this.api_token = context.getString(R.string.THE_MOVIE_DB_API_TOKEN);
-        this.order = this.default_order;
+        this.apiToken = context.getString(R.string.THE_MOVIE_DB_API_TOKEN);
+        this.order = this.defaultOrder;
     }
 
     /**
@@ -72,7 +73,7 @@ public class MovieDbHelper {
      * @param order Wanted order (popular / top_rated)
      */
     public void setOrder(String order) {
-        if (order.equals("popular") || order.equals("top_rated")) {
+        if ("popular".equals(order) || "top_rated".equals(order)) {
             this.order = order;
         }
     }
@@ -95,24 +96,23 @@ public class MovieDbHelper {
     public MoviesList getMovies(int pageNumber) {
         Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
                 .appendPath(order)
-                .appendQueryParameter(PARAM_API, api_token)
+                .appendQueryParameter(PARAM_API, apiToken)
                 .appendQueryParameter(PARAM_PAGE, String.valueOf(pageNumber))
                 .build();
         URL movieDbUrl = null;
         try {
             movieDbUrl = new URL(movieDbApiUrl.toString());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            Log.e("PopularMovies", "exception", e);
         }
         String movieResults = null;
         try {
             movieResults = NetworkUtils.getResponseFromHttpUrl(movieDbUrl);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("PopularMovies", "exception", e);
         }
         Gson gson = new Gson();
-        MoviesList moviesList = gson.fromJson(movieResults, MoviesList.class);
 
-        return moviesList;
+        return gson.fromJson(movieResults, MoviesList.class);
     }
 }

@@ -1,11 +1,13 @@
 package com.example.android.popularmovies;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.example.android.popularmovies.layout.MovieAdapter;
@@ -30,7 +32,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         setContentView(R.layout.activity_main);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_main);
         //Set LayoutManager
-        int numberOfColumns = 2;
+        int numberOfColumns;
+        if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            numberOfColumns = 2;
+        } else{
+            numberOfColumns = 3;
+        }
         GridLayoutManager layoutManager = new GridLayoutManager(this, numberOfColumns);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
@@ -41,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
+        mLoadingIndicator.setVisibility(View.VISIBLE);
         new fetchMoviesTask().execute();
     }
 
@@ -63,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         protected void onPostExecute(MoviesList moviesList) {
             if (moviesList != null && moviesList.getTotalResults() > 0) {
                 mMovieAdapter.setData(moviesList.getResults());
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
             }
         }
     }

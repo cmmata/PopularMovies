@@ -103,11 +103,23 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      * @param position                  The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(MovieAdapterViewHolder movieAdapterViewHolder, int position) {
+    public void onBindViewHolder(final MovieAdapterViewHolder movieAdapterViewHolder, int position) {
         MoviesResult movieSelected = mMovieList.get(position);
         movieAdapterViewHolder.mMovieTextView.setText(movieSelected.getOriginalTitle());
         String imageUrl = movieSelected.getPosterPath();
-        Picasso.with(context).load(imageUrl).into(movieAdapterViewHolder.mImageView);
+        Picasso.with(context)
+                .load(imageUrl)
+                .into(movieAdapterViewHolder.mImageView, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        movieAdapterViewHolder.mMovieTextView.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onError() {
+                        movieAdapterViewHolder.mMovieTextView.setText(R.string.error_loading);
+                    }
+                });
     }
 
     /**
