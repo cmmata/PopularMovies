@@ -3,4 +3,7 @@
     <string name="error_message">An error has occurred. Please try again by clicking REFRESH button</string>
     <string name="error_loading">There was an error loading the movie poster</string>
     <string name="movie_thumbnail">Movie poster</string>
+    <string name="release_date">Release date</string>
+    <string name="rate">User rate</string>
+    <string name="synopsis">Synopsis</string>
 </resources>

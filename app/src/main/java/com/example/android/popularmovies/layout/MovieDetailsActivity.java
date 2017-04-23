@@ -21,6 +21,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private ImageView mMoviePoster;
     private TextView mMovieTitle;
+    private TextView mMovieDate;
+    private TextView mMovieRate;
+    private TextView mMovieSynopsis;
+    private TextView mMovieDateTag;
+    private TextView mMovieRateTag;
+    private TextView mMovieSynopsisTag;
     private MovieDbHelper movieDbHelper;
     private Context context;
 
@@ -32,6 +38,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         mMoviePoster = (ImageView) findViewById(R.id.detail_movie_thumb);
         mMovieTitle = (TextView) findViewById(R.id.detail_movie_title);
+        mMovieDate = (TextView) findViewById(R.id.detail_movie_date);
+        mMovieRate = (TextView) findViewById(R.id.detail_movie_rate);
+        mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
+        mMovieDateTag = (TextView) findViewById(R.id.detail_movie_date_tag);
+        mMovieRateTag = (TextView) findViewById(R.id.detail_movie_rate_tag);
+        mMovieSynopsisTag = (TextView) findViewById(R.id.detail_movie_synopsis_tag);
         Intent fatherIntent = getIntent();
         movieDbHelper = new MovieDbHelper(this);
         if (fatherIntent != null && fatherIntent.hasExtra(Intent.EXTRA_TEXT)) {
@@ -69,6 +81,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         protected void onPostExecute(Movie moviesDetails) {
             if (moviesDetails != null) {
                 mMovieTitle.setText(moviesDetails.getTitle());
+                mMovieDate.setText(moviesDetails.getReleaseDate());
+                mMovieRate.setText(String.valueOf(moviesDetails.getVoteAverage()));
+                mMovieSynopsis.setText(moviesDetails.getOverview());
                 Log.d("Movies", moviesDetails.getPosterPath());
                 Picasso.with(context)
                         .load(moviesDetails.getPosterPath())
