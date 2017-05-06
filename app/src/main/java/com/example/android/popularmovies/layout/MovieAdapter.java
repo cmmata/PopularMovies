@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
 import com.squareup.picasso.Picasso;
 

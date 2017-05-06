@@ -18,7 +18,6 @@ import com.example.android.popularmovies.themoviedb.MoviesList;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
 
 import java.net.URL;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 

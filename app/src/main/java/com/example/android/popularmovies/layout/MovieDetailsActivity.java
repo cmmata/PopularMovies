@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,8 +14,6 @@ import com.example.android.popularmovies.themoviedb.Movie;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.squareup.picasso.Picasso;
 
-import java.net.URL;
-
 public class MovieDetailsActivity extends AppCompatActivity {
 
     private ImageView mMoviePoster;
@@ -24,9 +21,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private TextView mMovieDate;
     private TextView mMovieRate;
     private TextView mMovieSynopsis;
-    private TextView mMovieDateTag;
-    private TextView mMovieRateTag;
-    private TextView mMovieSynopsisTag;
     private MovieDbHelper movieDbHelper;
     private Context context;
 
@@ -41,9 +35,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mMovieDate = (TextView) findViewById(R.id.detail_movie_date);
         mMovieRate = (TextView) findViewById(R.id.detail_movie_rate);
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
-        mMovieDateTag = (TextView) findViewById(R.id.detail_movie_date_tag);
-        mMovieRateTag = (TextView) findViewById(R.id.detail_movie_rate_tag);
-        mMovieSynopsisTag = (TextView) findViewById(R.id.detail_movie_synopsis_tag);
         Intent fatherIntent = getIntent();
         movieDbHelper = new MovieDbHelper(this);
         if (fatherIntent != null && fatherIntent.hasExtra(Intent.EXTRA_TEXT)) {
