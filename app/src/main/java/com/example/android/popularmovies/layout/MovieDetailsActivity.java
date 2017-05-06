@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.themoviedb.Genre;
 import com.example.android.popularmovies.themoviedb.Movie;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.squareup.picasso.Picasso;
@@ -20,6 +21,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private TextView mMovieTitle;
     private TextView mMovieDate;
     private TextView mMovieRate;
+    private TextView mMovieGenre;
     private TextView mMovieSynopsis;
     private MovieDbHelper movieDbHelper;
     private Context context;
@@ -34,19 +36,20 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mMovieTitle = (TextView) findViewById(R.id.detail_movie_title);
         mMovieDate = (TextView) findViewById(R.id.detail_movie_date);
         mMovieRate = (TextView) findViewById(R.id.detail_movie_rate);
+        mMovieGenre = (TextView) findViewById(R.id.detail_movie_genre);
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
         Intent fatherIntent = getIntent();
         movieDbHelper = new MovieDbHelper(this);
         if (fatherIntent != null && fatherIntent.hasExtra(Intent.EXTRA_TEXT)) {
             String movieId = fatherIntent.getStringExtra(Intent.EXTRA_TEXT);
-            new fetchMovieDetailsTask().execute(movieId);
+            new FetchMovieDetailsTask().execute(movieId);
         }
     }
 
     /**
      * AsyncTask to fetch movie's data
      */
-    private class fetchMovieDetailsTask extends AsyncTask<String, Void, Movie> {
+    private class FetchMovieDetailsTask extends AsyncTask<String, Void, Movie> {
 
         /**
          * Tasks to do in background, like fetch movie details
@@ -73,6 +76,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
             if (moviesDetails != null) {
                 mMovieTitle.setText(moviesDetails.getTitle());
                 mMovieDate.setText(moviesDetails.getReleaseDate());
+                StringBuilder genres = new StringBuilder();
+                String sep = "";
+                for (Genre genre : moviesDetails.getGenres()) {
+                    genres.append(sep);
+                    genres.append(genre.getName());
+                    sep = ", ";
+                }
+                mMovieGenre.setText(genres.toString());
                 mMovieRate.setText(String.valueOf(moviesDetails.getVoteAverage()));
                 mMovieSynopsis.setText(moviesDetails.getOverview());
                 Log.d("Movies", moviesDetails.getPosterPath());

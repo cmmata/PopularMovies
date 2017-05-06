@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mLoadingIndicator.setVisibility(View.VISIBLE);
-        new fetchMoviesTask().execute();
+        new FetchMoviesTask().execute();
     }
 
     /**
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     /**
      * AsyncTask to fetch movies data
      */
-    private class fetchMoviesTask extends AsyncTask<URL, Void, MoviesList> {
+    private class FetchMoviesTask extends AsyncTask<URL, Void, MoviesList> {
 
         /**
          * Tasks to do in background, like fetch movie thumbnails

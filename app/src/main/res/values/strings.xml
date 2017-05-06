@@ -6,4 +6,5 @@
     <string name="release_date">Release date</string>
     <string name="rate">User rate</string>
     <string name="synopsis">Synopsis</string>
+    <string name="genre">Genres</string>
 </resources>

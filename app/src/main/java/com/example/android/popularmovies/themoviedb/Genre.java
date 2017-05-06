@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * A movie's genre. Generated with <a href="http://www.jsonschema2pojo.org/">this online tool</a>
  */
-class Genre {
+public class Genre {
 
     @SerializedName("id")
     @Expose
