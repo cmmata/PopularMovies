@@ -85,7 +85,7 @@ public class Movie {
   @Expose
     private Integer voteCount;
 
-    private static String THUMB_URL = "http://image.tmdb.org/t/p/w185/";
+    private static String THUMB_URL = "http://image.tmdb.org/t/p/w342/";
 
     public Boolean getAdult() {
         return adult;

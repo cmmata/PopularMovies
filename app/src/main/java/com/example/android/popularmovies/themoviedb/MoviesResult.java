@@ -59,7 +59,7 @@ public class MoviesResult {
     @Expose
     private Double voteAverage;
 
-    private static String THUMB_URL = "http://image.tmdb.org/t/p/w185/";
+    private static String THUMB_URL = "http://image.tmdb.org/t/p/w342/";
 
     /**
      * No args constructor for use in serialization

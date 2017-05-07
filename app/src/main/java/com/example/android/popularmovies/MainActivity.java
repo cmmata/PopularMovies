@@ -4,10 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private MovieAdapter mMovieAdapter;
     private ProgressBar mLoadingIndicator;
     private MovieDbHelper movieDbHelper;
+    private ActionBar mActionBar;
+    private String mainTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +56,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mLoadingIndicator.setVisibility(View.VISIBLE);
-        new FetchMoviesTask().execute();
+        mainTitle = getResources().getString(R.string.app_name) + " - ";
+        mActionBar = getSupportActionBar();
+        mActionBar.setTitle(mainTitle + getResources().getString(R.string.sort_popular));
+        new FetchMoviesTask().execute(MovieDbHelper.POPULAR_ORDER);
     }
 
     /**
@@ -66,10 +75,36 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         startActivity(intentToStartMovieDetails);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.sort_popular) {
+            mActionBar.setTitle(mainTitle  + getResources().getString(R.string.sort_popular));
+            new FetchMoviesTask().execute(MovieDbHelper.POPULAR_ORDER);
+            return true;
+        }
+
+        if (id == R.id.sort_rated) {
+            mActionBar.setTitle(mainTitle + getResources().getString(R.string.sort_rated));
+            new FetchMoviesTask().execute(MovieDbHelper.RATED_ORDER);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * AsyncTask to fetch movies data
      */
-    private class FetchMoviesTask extends AsyncTask<URL, Void, MoviesList> {
+    private class FetchMoviesTask extends AsyncTask<String, Void, MoviesList> {
 
         /**
          * Tasks to do in background, like fetch movie thumbnails
@@ -78,8 +113,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
          * @return List of movies
          */
         @Override
-        protected MoviesList doInBackground(URL... params) {
-
+        protected MoviesList doInBackground(String... params) {
+            if (params.length > 0) {
+                movieDbHelper.setOrder(params[0]);
+            }
             return movieDbHelper.getMovies();
         }
 

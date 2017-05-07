@@ -7,4 +7,6 @@
     <string name="rate">User rate</string>
     <string name="synopsis">Synopsis</string>
     <string name="genre">Genres</string>
+    <string name="sort_popular">Most popular</string>
+    <string name="sort_rated">Highest rated</string>
 </resources>

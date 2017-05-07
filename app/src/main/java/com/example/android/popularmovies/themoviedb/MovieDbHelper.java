@@ -20,7 +20,12 @@ public class MovieDbHelper {
     /**
      * Default order when we open the App
      */
-    private String defaultOrder = "popular";
+    public static final String POPULAR_ORDER = "popular";
+
+    /**
+     * Default order when we open the App
+     */
+    public static final String RATED_ORDER = "top_rated";
 
     /**
      * Selected order (popular / top_rated)
@@ -50,7 +55,7 @@ public class MovieDbHelper {
      */
     public MovieDbHelper(Context context) {
         this.apiToken = context.getString(R.string.THE_MOVIE_DB_API_TOKEN);
-        this.order = this.defaultOrder;
+        this.order = POPULAR_ORDER;
     }
 
     /**
@@ -66,7 +71,7 @@ public class MovieDbHelper {
      * @param order Wanted order (popular / top_rated)
      */
     public void setOrder(String order) {
-        if ("popular".equals(order) || "top_rated".equals(order)) {
+        if (POPULAR_ORDER.equals(order) || RATED_ORDER.equals(order)) {
             this.order = order;
         }
     }

@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:padding="2dp"
-    android:layout_width="200dp"
-    android:layout_height="300dp">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/movie_thumb"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="240dp"
+        android:scaleType="fitXY"/>
 
     <TextView
         android:id="@+id/movie_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@id/movie_thumb"
-        android:layout_alignLeft="@id/movie_thumb"
-        android:layout_alignTop="@id/movie_thumb"
         android:gravity="bottom"/>
-</RelativeLayout>
+</FrameLayout>
