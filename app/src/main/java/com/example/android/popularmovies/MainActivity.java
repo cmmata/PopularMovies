@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
+import android.os.PersistableBundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,10 +33,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private MovieDbHelper movieDbHelper;
     private ActionBar mActionBar;
     private String mainTitle;
+    private String orderSelected = MovieDbHelper.POPULAR_ORDER;
+    private static final String ORDER_SELECTED_KEY = "orderSelected";
+    private static final String TITLE_KEY = "title";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState != null && savedInstanceState.containsKey(ORDER_SELECTED_KEY)) {
+            orderSelected = savedInstanceState.getString(ORDER_SELECTED_KEY);
+        }
+        if(savedInstanceState != null && savedInstanceState.containsKey(TITLE_KEY)) {
+            mainTitle = savedInstanceState.getString(TITLE_KEY);
+        } else {
+            mainTitle = getResources().getString(R.string.app_name) + " - " + getResources().getString(R.string.sort_popular);
+        }
         setContentView(R.layout.activity_main);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_main);
         //Set LayoutManager
@@ -56,10 +68,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mLoadingIndicator.setVisibility(View.VISIBLE);
-        mainTitle = getResources().getString(R.string.app_name) + " - ";
         mActionBar = getSupportActionBar();
-        mActionBar.setTitle(mainTitle + getResources().getString(R.string.sort_popular));
-        new FetchMoviesTask().execute(MovieDbHelper.POPULAR_ORDER);
+        mActionBar.setTitle(mainTitle);
+        new FetchMoviesTask().execute(orderSelected);
     }
 
     /**
@@ -87,18 +98,31 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         int id = item.getItemId();
 
         if (id == R.id.sort_popular) {
-            mActionBar.setTitle(mainTitle  + getResources().getString(R.string.sort_popular));
+            String popular = getResources().getString(R.string.sort_popular);
+            orderSelected = MovieDbHelper.POPULAR_ORDER;
+            mainTitle = getResources().getString(R.string.app_name) + " - " + popular;
+            mActionBar.setTitle(mainTitle);
             new FetchMoviesTask().execute(MovieDbHelper.POPULAR_ORDER);
             return true;
         }
 
         if (id == R.id.sort_rated) {
-            mActionBar.setTitle(mainTitle + getResources().getString(R.string.sort_rated));
+            String rated = getResources().getString(R.string.sort_rated);
+            orderSelected = MovieDbHelper.RATED_ORDER;
+            mainTitle = getResources().getString(R.string.app_name) + " - " + rated;
+            mActionBar.setTitle(mainTitle);
             new FetchMoviesTask().execute(MovieDbHelper.RATED_ORDER);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(ORDER_SELECTED_KEY, orderSelected);
+        outState.putString(TITLE_KEY, mainTitle);
+        super.onSaveInstanceState(outState);
     }
 
     /**

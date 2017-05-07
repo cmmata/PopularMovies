@@ -9,12 +9,13 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:colorBackground">@color/colorPrimaryDark</item>
         <item name="android:textColor">@color/colorFonts</item>
+        <item name="android:itemBackground">@color/colorPrimaryDark</item>
         <item name="android:popupMenuStyle">@style/MainActionBar.Popup</item>
         <!-- if using android.support.v7.widget.PopupMenu -->
         <item name="popupMenuStyle">@style/MainActionBar.Popup</item>
     </style>
-    <style name="MainActionBar.Popup" parent="ThemeOverlay.AppCompat.Light">
+    <style name="MainActionBar.Popup" parent="ThemeOverlay.AppCompat.Dark">
         <item name="android:colorBackground">@color/colorPrimaryDark</item>
-        <item name="android:textColor">@color/colorFonts</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 </resources>
