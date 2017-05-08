@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:text="@string/error_message"
+        android:text="@string/connection_error"
         android:textSize="20sp"
         android:visibility="invisible" />
 

@@ -3,8 +3,9 @@ package com.example.android.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.PersistableBundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,13 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.example.android.popularmovies.layout.MovieAdapter;
 import com.example.android.popularmovies.layout.MovieDetailsActivity;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.MoviesList;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
-
-import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
@@ -79,11 +80,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      */
     @Override
     public void onClick(MoviesResult movieSelected) {
-        Context context = this;
-        Class detailsClass = MovieDetailsActivity.class;
-        Intent intentToStartMovieDetails = new Intent(context, detailsClass);
-        intentToStartMovieDetails.putExtra(Intent.EXTRA_TEXT, String.valueOf(movieSelected.getId()));
-        startActivity(intentToStartMovieDetails);
+        if (isOnline()) {
+            Context context = this;
+            Class detailsClass = MovieDetailsActivity.class;
+            Intent intentToStartMovieDetails = new Intent(context, detailsClass);
+            intentToStartMovieDetails.putExtra(Intent.EXTRA_TEXT, String.valueOf(movieSelected.getId()));
+            startActivity(intentToStartMovieDetails);
+        } else {
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.connection_error), duration);
+            toast.show();
+        }
     }
 
     @Override
@@ -126,6 +133,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     /**
+     * Check that app has connection to internet
+     *
+     * @return boolean
+     */
+    private boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    /**
      * AsyncTask to fetch movies data
      */
     private class FetchMoviesTask extends AsyncTask<String, Void, MoviesList> {
@@ -141,7 +161,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             if (params.length > 0) {
                 movieDbHelper.setOrder(params[0]);
             }
-            return movieDbHelper.getMovies();
+            MoviesList moviesList = null;
+            if (isOnline()) {
+                moviesList = movieDbHelper.getMovies();
+            }
+
+            return moviesList;
         }
 
         /**
@@ -150,9 +175,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
          */
         @Override
         protected void onPostExecute(MoviesList moviesList) {
-            if (moviesList != null && moviesList.getTotalResults() > 0) {
+            if (moviesList == null || moviesList.getTotalResults() <= 0) {
+                mErrorMessageDisplay.setText(R.string.connection_error);
+                mErrorMessageDisplay.setVisibility(View.VISIBLE);
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+            } else {
                 mMovieAdapter.setData(moviesList.getResults());
                 mLoadingIndicator.setVisibility(View.INVISIBLE);
+                mErrorMessageDisplay.setVisibility(View.INVISIBLE);
             }
         }
     }
