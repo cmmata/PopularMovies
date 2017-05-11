@@ -111,7 +111,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
                 .into(movieAdapterViewHolder.mImageView, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {
-                        movieAdapterViewHolder.mMovieTextView.setVisibility(View.INVISIBLE);
+                        movieAdapterViewHolder.mMovieTextView.setVisibility(View.GONE);
                     }
 
                     @Override
