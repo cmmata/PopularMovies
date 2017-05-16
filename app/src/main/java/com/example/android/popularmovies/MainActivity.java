@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,11 +20,13 @@ import android.widget.Toast;
 
 import com.example.android.popularmovies.layout.MovieAdapter;
 import com.example.android.popularmovies.layout.MovieDetailsActivity;
+import com.example.android.popularmovies.tasks.FetchMoviesListener;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.MoviesList;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
+import com.example.android.popularmovies.tasks.FetchMoviesTask;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesListener {
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
@@ -70,8 +71,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mLoadingIndicator.setVisibility(View.VISIBLE);
         mActionBar = getSupportActionBar();
-        mActionBar.setTitle(mainTitle);
-        new FetchMoviesTask().execute(orderSelected);
+        if (null != mActionBar) {
+            mActionBar.setTitle(mainTitle);
+        }
+        new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(orderSelected);
     }
 
     /**
@@ -109,16 +112,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             orderSelected = MovieDbHelper.POPULAR_ORDER;
             mainTitle = getResources().getString(R.string.app_name) + " - " + popular;
             mActionBar.setTitle(mainTitle);
-            new FetchMoviesTask().execute(MovieDbHelper.POPULAR_ORDER);
+            new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(MovieDbHelper.POPULAR_ORDER);
             return true;
-        }
-
-        if (id == R.id.sort_rated) {
+        } else if (id == R.id.sort_rated) {
             String rated = getResources().getString(R.string.sort_rated);
             orderSelected = MovieDbHelper.RATED_ORDER;
             mainTitle = getResources().getString(R.string.app_name) + " - " + rated;
             mActionBar.setTitle(mainTitle);
-            new FetchMoviesTask().execute(MovieDbHelper.RATED_ORDER);
+            new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(MovieDbHelper.RATED_ORDER);
             return true;
         }
 
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      *
      * @return boolean
      */
-    private boolean isOnline() {
+    public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -145,47 +146,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    /**
-     * AsyncTask to fetch movies data
-     */
-    private class FetchMoviesTask extends AsyncTask<String, Void, MoviesList> {
-
-        /**
-         * Tasks to do in background, like fetch movie thumbnails
-         * @param params Parameters
-         *
-         * @return List of movies
-         */
-        @Override
-        protected MoviesList doInBackground(String... params) {
-            if (params.length > 0) {
-                movieDbHelper.setOrder(params[0]);
-            }
-            MoviesList moviesList = null;
-            if (isOnline()) {
-                moviesList = movieDbHelper.getMovies();
-            }
-
-            return moviesList;
-        }
-
-        /**
-         * Tasks to be executed when doInBackground finishes
-         * @param moviesList Movies list, fetched from API
-         */
-        @Override
-        protected void onPostExecute(MoviesList moviesList) {
-            if (moviesList == null || moviesList.getTotalResults() <= 0) {
-                mErrorMessageDisplay.setText(R.string.connection_error);
-                mErrorMessageDisplay.setVisibility(View.VISIBLE);
-                mLoadingIndicator.setVisibility(View.INVISIBLE);
-                mRecyclerView.setVisibility(View.GONE);
-            } else {
-                mRecyclerView.setVisibility(View.VISIBLE);
-                mMovieAdapter.setData(moviesList.getResults());
-                mLoadingIndicator.setVisibility(View.INVISIBLE);
-                mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-            }
+    @Override
+    public void onDownloadComplete(MoviesList moviesList) {
+        if (moviesList == null || moviesList.getTotalResults() <= 0) {
+            mErrorMessageDisplay.setText(R.string.connection_error);
+            mErrorMessageDisplay.setVisibility(View.VISIBLE);
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+        } else {
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mMovieAdapter.setData(moviesList.getResults());
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         }
     }
 }
