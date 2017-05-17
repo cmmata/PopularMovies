@@ -85,6 +85,8 @@ public class Movie {
   @Expose
     private Integer voteCount;
 
+    private Videos trailers;
+
     private static String THUMB_URL = "http://image.tmdb.org/t/p/w342/";
 
     public Boolean getAdult() {
@@ -285,5 +287,13 @@ public class Movie {
 
     public void setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
+    }
+
+    public Videos getTrailers() {
+        return trailers;
+    }
+
+    public void setTrailers(Videos trailers) {
+        this.trailers = trailers;
     }
 }

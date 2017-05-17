@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,9 +16,11 @@ import com.example.android.popularmovies.tasks.FetchMovieDetailsTask;
 import com.example.android.popularmovies.themoviedb.Genre;
 import com.example.android.popularmovies.themoviedb.Movie;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
+import com.example.android.popularmovies.themoviedb.MoviesResult;
+import com.example.android.popularmovies.themoviedb.Videos;
 import com.squareup.picasso.Picasso;
 
-public class MovieDetailsActivity extends AppCompatActivity implements FetchMovieDetailsListener {
+public class MovieDetailsActivity extends AppCompatActivity implements VideoAdapter.VideoAdapterOnClickHandler, FetchMovieDetailsListener {
 
     private ImageView mMoviePoster;
     private TextView mMovieTitle;
@@ -26,6 +30,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements FetchMovi
     private TextView mMovieSynopsis;
     private MovieDbHelper movieDbHelper;
     private Context context;
+    private RecyclerView mRecyclerViewVideos;
+    private VideoAdapter mVideoAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements FetchMovi
         mMovieRate = (TextView) findViewById(R.id.detail_movie_rate);
         mMovieGenre = (TextView) findViewById(R.id.detail_movie_genre);
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
+        mRecyclerViewVideos = (RecyclerView) findViewById(R.id.recyclerview_videos);
+        LinearLayoutManager videosManager = new LinearLayoutManager(this);
+        mRecyclerViewVideos.setLayoutManager(videosManager);
+        mVideoAdapter = new VideoAdapter(this);
+        mRecyclerViewVideos.setAdapter(mVideoAdapter);
         Intent fatherIntent = getIntent();
         movieDbHelper = new MovieDbHelper(this);
         if (fatherIntent != null && fatherIntent.hasExtra(Intent.EXTRA_TEXT)) {
@@ -60,7 +71,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements FetchMovi
                 sep = ", ";
             }
             mMovieGenre.setText(genres.toString());
-            mMovieRate.setText(String.valueOf(movieDetails.getVoteAverage()));
+            mMovieRate.setText(getResources().getString(R.string.rating, movieDetails.getVoteAverage()));
             mMovieSynopsis.setText(movieDetails.getOverview());
             Log.d("Movies", movieDetails.getPosterPath());
             Picasso.with(context)
@@ -76,6 +87,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements FetchMovi
                             mMoviePoster.setImageResource(android.R.drawable.gallery_thumb);
                         }
                     });
+            Videos trailers = movieDetails.getTrailers();
         }
+    }
+
+    @Override
+    public void onClick(MoviesResult movieSelected) {
+        //TODO Open youtube intent
     }
 }
