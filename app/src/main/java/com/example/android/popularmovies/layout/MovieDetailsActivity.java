@@ -2,6 +2,7 @@ package com.example.android.popularmovies.layout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +19,7 @@ import com.example.android.popularmovies.themoviedb.Movie;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
 import com.example.android.popularmovies.themoviedb.Videos;
+import com.example.android.popularmovies.themoviedb.VideosResult;
 import com.squareup.picasso.Picasso;
 
 public class MovieDetailsActivity extends AppCompatActivity implements VideoAdapter.VideoAdapterOnClickHandler, FetchMovieDetailsListener {
@@ -58,6 +60,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
         }
     }
 
+    /**
+     * Updates the movie trailers
+     * @param movieDetails Details
+     */
     @Override
     public void onDownloadComplete(Movie movieDetails) {
         if (movieDetails != null) {
@@ -88,11 +94,22 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
                         }
                     });
             Videos trailers = movieDetails.getTrailers();
+            mVideoAdapter.setData(trailers.getResults());
         }
     }
 
+    /**
+     * VideoClicked
+     * @param videoSelected trailer selected
+     */
     @Override
-    public void onClick(MoviesResult movieSelected) {
-        //TODO Open youtube intent
+    public void onVideoClick(VideosResult videoSelected) {
+        String videoType = videoSelected.getType();
+        String videoKey = videoSelected.getKey();
+        if (videoType.equals("YouTube")) {
+            Uri youtubeUri = Uri.parse("http://www.youtube.com/watch=v=" + videoKey);
+            Intent openYoutube = new Intent(Intent.ACTION_VIEW, youtubeUri);
+            startActivity(openYoutube);
+        }
     }
 }

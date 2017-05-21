@@ -30,7 +30,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
      * The interface that receives onClick messages.
      */
     public interface VideoAdapterOnClickHandler {
-        void onClick(VideosResult videoSelected);
+        void onVideoClick(VideosResult videoSelected);
     }
 
     /**
@@ -48,12 +48,10 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
      */
     public class VideoAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final TextView mVideoTextView;
-        public final ImageView mImageView;
 
         public VideoAdapterViewHolder(View view) {
             super(view);
-            mVideoTextView = (TextView) view.findViewById(R.id.movie_title);
-            mImageView = (ImageView) view.findViewById(R.id.movie_thumb);
+            mVideoTextView = (TextView) view.findViewById(R.id.movie_trailer_title);
             view.setOnClickListener(this);
         }
 
@@ -66,7 +64,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
             VideosResult videoSelected = mVideosList.get(adapterPosition);
-            mClickHandler.onClick(videoSelected);
+            mClickHandler.onVideoClick(videoSelected);
         }
     }
 
@@ -84,7 +82,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
     @Override
     public VideoAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.movie_list_item;
+        int layoutIdForListItem = R.layout.movie_trailer;
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
 
@@ -98,15 +96,15 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
      * details for this particular position, using the "position" argument that is conveniently
      * passed into us.
      *
-     * @param VideoAdapterViewHolder The ViewHolder which should be updated to represent the
+     * @param videoAdapterViewHolder The ViewHolder which should be updated to represent the
      *                                  contents of the item at the given position in the data set.
      * @param position                  The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(final VideoAdapterViewHolder VideoAdapterViewHolder, int position) {
+    public void onBindViewHolder(final VideoAdapterViewHolder videoAdapterViewHolder, int position) {
         VideosResult videoSelected = mVideosList.get(position);
-        VideoAdapterViewHolder.mVideoTextView.setText(videoSelected.getType());
-        //TODO predefined icon
+        String videoText = videoSelected.getName() + " (" + videoSelected.getType() + ")";
+        videoAdapterViewHolder.mVideoTextView.setText(videoText);
     }
 
     /**

@@ -106,11 +106,14 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp" />
 
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="2dip"
-                android:background="#fff"
-                android:layout_marginTop="15dp"/>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/divider_horizontal_bright"
+                android:background="@color/colorFonts"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp"
+                android:contentDescription="@string/divider"/>
             <!-- Videos -->
             <TextView
                 android:id="@+id/detail_movie_videos_tag"
