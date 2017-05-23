@@ -13,4 +13,6 @@
     <string name="videos">Videos</string>
     <string name="movie_trailer">Movie trailer</string>
     <string name="divider">Divider</string>
+    <string name="reviews">Reviews</string>
+    <string name="youtube_video">YouTube</string>
 </resources>

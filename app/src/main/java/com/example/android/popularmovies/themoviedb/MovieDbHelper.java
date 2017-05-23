@@ -52,6 +52,11 @@ public class MovieDbHelper {
      */
     private static final String VIDEO_TAG = "videos";
 
+    /**
+     * Tag to access movie's reviews
+     */
+    private static final String REVIEW_TAG = "reviews";
+
     //TODO One can set the API response language by using the parameter '&language=es'
 
     /**
@@ -131,6 +136,15 @@ public class MovieDbHelper {
         String movieVideos = NetworkUtils.getApiCallResult(movieDbApiUrlVideos);
         Videos trailers = gson.fromJson(movieVideos, Videos.class);
         movie.setTrailers(trailers);
+        //Get reviews
+        Uri movieDbApiUrlReviews = Uri.parse(API_URL).buildUpon()
+                .appendPath(movieId)
+                .appendPath(REVIEW_TAG)
+                .appendQueryParameter(PARAM_API, apiToken)
+                .build();
+        String movieReview = NetworkUtils.getApiCallResult(movieDbApiUrlReviews);
+        Reviews reviews = gson.fromJson(movieReview, Reviews.class);
+        movie.setReviews(reviews);
 
         return movie;
     }

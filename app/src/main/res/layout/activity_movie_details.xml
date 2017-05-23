@@ -134,6 +134,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
+            <!-- Reviews -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/detail_movie_reviews_tag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:text="@string/reviews"
+                    style="@style/titleFonts"/>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerview_reviews"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </LinearLayout>

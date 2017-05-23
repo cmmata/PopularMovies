@@ -87,6 +87,8 @@ public class Movie {
 
     private Videos trailers;
 
+    private Reviews reviews;
+
     private static String THUMB_URL = "http://image.tmdb.org/t/p/w342/";
 
     public Boolean getAdult() {
@@ -295,5 +297,13 @@ public class Movie {
 
     public void setTrailers(Videos trailers) {
         this.trailers = trailers;
+    }
+
+    public Reviews getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(Reviews reviews) {
+        this.reviews = reviews;
     }
 }
