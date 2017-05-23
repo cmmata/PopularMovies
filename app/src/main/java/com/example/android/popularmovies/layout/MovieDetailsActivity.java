@@ -48,8 +48,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
         mMovieGenre = (TextView) findViewById(R.id.detail_movie_genre);
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
         mRecyclerViewVideos = (RecyclerView) findViewById(R.id.recyclerview_videos);
-        LinearLayoutManager videosManager = new LinearLayoutManager(this);
+        LinearLayoutManager videosManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerViewVideos.setLayoutManager(videosManager);
+        mRecyclerViewVideos.setHasFixedSize(true);
         mVideoAdapter = new VideoAdapter(this);
         mRecyclerViewVideos.setAdapter(mVideoAdapter);
         Intent fatherIntent = getIntent();
@@ -104,10 +105,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
      */
     @Override
     public void onVideoClick(VideosResult videoSelected) {
-        String videoType = videoSelected.getType();
+        String videoSite = videoSelected.getSite();
         String videoKey = videoSelected.getKey();
-        if (videoType.equals("YouTube")) {
-            Uri youtubeUri = Uri.parse("http://www.youtube.com/watch=v=" + videoKey);
+        if (videoSite.equals("YouTube")) {
+            Uri youtubeUri = Uri.parse("http://www.youtube.com/watch?v=" + videoKey);
             Intent openYoutube = new Intent(Intent.ACTION_VIEW, youtubeUri);
             startActivity(openYoutube);
         }
