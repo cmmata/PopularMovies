@@ -1,8 +1,12 @@
 package com.example.android.popularmovies;
 
+import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.ActionBar;
@@ -18,6 +22,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.popularmovies.data.MovieContract;
+import com.example.android.popularmovies.data.MovieDatabaseHelper;
 import com.example.android.popularmovies.layout.MovieAdapter;
 import com.example.android.popularmovies.layout.MovieDetailsActivity;
 import com.example.android.popularmovies.tasks.FetchMoviesListener;
@@ -26,7 +32,7 @@ import com.example.android.popularmovies.themoviedb.MoviesList;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
 import com.example.android.popularmovies.tasks.FetchMoviesTask;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesListener {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
@@ -38,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String orderSelected = MovieDbHelper.POPULAR_ORDER;
     private static final String ORDER_SELECTED_KEY = "orderSelected";
     private static final String TITLE_KEY = "title";
+    private SQLiteDatabase mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mActionBar.setTitle(mainTitle);
         }
         new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(orderSelected);
+        MovieDatabaseHelper movieDatabaseHelper = new MovieDatabaseHelper(this);
+        mDatabase = movieDatabaseHelper.getWritableDatabase();
     }
 
     /**
@@ -126,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Save state of the app
+     * @param outState State
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(ORDER_SELECTED_KEY, orderSelected);
@@ -146,6 +159,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    /**
+     * Tasks to do when the background thread finishes fetching Movies data
+     * @param moviesList List of movies fetched
+     */
     @Override
     public void onDownloadComplete(MoviesList moviesList) {
         if (moviesList == null || moviesList.getTotalResults() <= 0) {
@@ -159,5 +176,38 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         }
+    }
+
+    /**
+     * Gets all favorited movies
+     * @return Cursor with favorite movies
+     */
+    private Cursor getAllFavorites() {
+        try {
+            return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                            null,
+                            null,
+                            null,
+                            MovieContract.MovieEntry._ID);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }
