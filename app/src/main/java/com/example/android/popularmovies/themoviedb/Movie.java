@@ -1,7 +1,13 @@
 package com.example.android.popularmovies.themoviedb;
 
+import android.database.Cursor;
+
+import com.example.android.popularmovies.data.MovieContract;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -90,6 +96,34 @@ public class Movie {
     private Reviews reviews;
 
     private static String THUMB_URL = "http://image.tmdb.org/t/p/w342/";
+
+    /**
+     * Constructor with movie ID
+     * @param movieId Movie ID
+     */
+    public Movie(Integer movieId) {
+        this.id = movieId;
+    }
+
+    /**
+     * Constructor vith database data
+     * @param movieData Movie data from database
+     */
+    public Movie(Cursor movieData) {
+        if (movieData.getCount() > 0) {
+            this.id = movieData.getInt(movieData.getColumnIndex(MovieContract.MovieEntry._ID));
+            this.title = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+            String genre = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_GENRE));
+            for (String item : Arrays.asList(genre.split("\\s*,\\s*"))) {
+                Genre genreTemp = new Genre();
+                genreTemp.setName(item);
+                this.genres.add(genreTemp);
+            }
+            this.releaseDate = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE));
+            this.overview = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_SYNOPSIS));
+            this.voteAverage = movieData.getDouble(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_USER_RATE));
+        }
+    }
 
     public Boolean getAdult() {
         return adult;

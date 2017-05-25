@@ -2,7 +2,11 @@ package com.example.android.popularmovies.layout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,21 +16,23 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.popularmovies.MainActivity;
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.data.MovieContract;
 import com.example.android.popularmovies.tasks.FetchMovieDetailsListener;
 import com.example.android.popularmovies.tasks.FetchMovieDetailsTask;
 import com.example.android.popularmovies.themoviedb.Genre;
 import com.example.android.popularmovies.themoviedb.Movie;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.Reviews;
-import com.example.android.popularmovies.themoviedb.ReviewsResult;
 import com.example.android.popularmovies.themoviedb.Videos;
 import com.example.android.popularmovies.themoviedb.VideosResult;
 import com.squareup.picasso.Picasso;
 
-public class MovieDetailsActivity extends AppCompatActivity implements VideoAdapter.VideoAdapterOnClickHandler, ReviewAdapter.ReviewAdapterOnClickHandler, FetchMovieDetailsListener {
+public class MovieDetailsActivity extends AppCompatActivity implements VideoAdapter.VideoAdapterOnClickHandler, FetchMovieDetailsListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private ImageView mMoviePoster;
+    private Integer mMovieId;
     private TextView mMovieTitle;
     private TextView mMovieDate;
     private TextView mMovieRate;
@@ -38,6 +44,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
     private VideoAdapter mVideoAdapter;
     private RecyclerView mRecyclerViewReviews;
     private ReviewAdapter mReviewAdapter;
+    private Movie movie;
+    private Intent fatherIntent;
+    // Constants for logging and referring to a unique loader
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int MOVIE_LOADER_ID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +64,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
         initializeVideos();
         initializeReviews();
-        Intent fatherIntent = getIntent();
+        fatherIntent = getIntent();
         movieDbHelper = new MovieDbHelper(this);
         if (fatherIntent != null && fatherIntent.hasExtra(Intent.EXTRA_TEXT)) {
-            String movieId = fatherIntent.getStringExtra(Intent.EXTRA_TEXT);
-            new FetchMovieDetailsTask(this, movieDbHelper).execute(movieId);
+            mMovieId = Integer.valueOf(fatherIntent.getStringExtra(Intent.EXTRA_TEXT));
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         }
     }
 
@@ -117,17 +128,18 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
     }
 
     /**
-     * ReviewClicked
-     * @param reviewSelected review clicked
+     * Load movie details, via database or API
+     * @param fatherIntent Intent who calls
+     * @param data Movie data, if found in database
      */
-    @Override
-    public void onReviewClick(ReviewsResult reviewSelected) {
-        String reviewUrl = reviewSelected.getUrl();
-        if (reviewUrl != null && !"".equals(reviewUrl)) {
-            Uri intentUrl = Uri.parse(reviewUrl);
-            Intent openReviewUrl = new Intent(Intent.ACTION_VIEW, intentUrl);
-            startActivity(openReviewUrl);
+    private void loadMovieData(Intent fatherIntent, Cursor data) {
+
+        if (null != data && data.getCount() > 0) {
+            movie = new Movie(data);
+        } else {
+            movie = new Movie(mMovieId);
         }
+        new FetchMovieDetailsTask(this, movieDbHelper).execute(movie);
     }
 
     /**
@@ -150,7 +162,80 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
         LinearLayoutManager reviewsManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerViewReviews.setLayoutManager(reviewsManager);
         mRecyclerViewReviews.setHasFixedSize(true);
-        mReviewAdapter = new ReviewAdapter(this);
+        mReviewAdapter = new ReviewAdapter();
         mRecyclerViewReviews.setAdapter(mReviewAdapter);
+    }
+
+    /**
+     * Button Mark as favorite pressed
+     * @param view View
+     */
+    public void markFavorite(View view) {
+
+    }
+
+    /**
+     * Instantiates and returns a new AsyncTaskLoader with the given ID.
+     * This loader will return task data as a Cursor or null if an error occurs.
+     *
+     * Implements the required callbacks to take care of loading data at all stages of loading.
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, final Bundle loaderArgs) {
+
+        return new AsyncTaskLoader<Cursor>(this) {
+
+            // Initialize a Cursor, this will hold all the task data
+            Cursor mVideoData = null;
+
+            // onStartLoading() is called when a loader first starts loading data
+            @Override
+            protected void onStartLoading() {
+                if (mVideoData != null) {
+                    // Delivers any previously loaded data immediately
+                    deliverResult(mVideoData);
+                } else {
+                    // Force a new load
+                    forceLoad();
+                }
+            }
+
+            // loadInBackground() performs asynchronous loading of data
+            @Override
+            public Cursor loadInBackground() {
+                String selection = "_id=?";
+                String [] args = {mMovieId.toString()};
+
+                try {
+                    return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                            null,
+                            selection,
+                            args,
+                            MovieContract.MovieEntry._ID);
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to asynchronously load data.");
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            // deliverResult sends the result of the load, a Cursor, to the registered listener
+            public void deliverResult(Cursor data) {
+                mVideoData = data;
+                super.deliverResult(data);
+            }
+        };
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        loadMovieData(fatherIntent, data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        loadMovieData(fatherIntent, null);
     }
 }

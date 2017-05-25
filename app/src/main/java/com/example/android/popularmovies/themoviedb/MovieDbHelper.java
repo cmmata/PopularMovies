@@ -115,18 +115,21 @@ public class MovieDbHelper {
 
     /**
      * Get the movie details
-     * @param movieId Movie's ID
+     * @param movie Movie's ID
      *
      * @return Movie details
      */
-    public Movie getMovieDetails(String movieId) {
-        Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
-                .appendPath(movieId)
-                .appendQueryParameter(PARAM_API, apiToken)
-                .build();
-        String movieDetails = NetworkUtils.getApiCallResult(movieDbApiUrl);
+    public Movie getMovieDetails(Movie movie) {
+        String movieId = movie.getId().toString();
         Gson gson = new Gson();
-        Movie movie = gson.fromJson(movieDetails, Movie.class);
+        if (null == movie.getTitle()) {
+            Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
+                    .appendPath(movieId)
+                    .appendQueryParameter(PARAM_API, apiToken)
+                    .build();
+            String movieDetails = NetworkUtils.getApiCallResult(movieDbApiUrl);
+            movie = gson.fromJson(movieDetails, Movie.class);
+        }
         //Get videos
         Uri movieDbApiUrlVideos = Uri.parse(API_URL).buildUpon()
                 .appendPath(movieId)

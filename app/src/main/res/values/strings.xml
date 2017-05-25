@@ -15,4 +15,6 @@
     <string name="divider">Divider</string>
     <string name="reviews">Reviews</string>
     <string name="youtube_video" translatable="false">YouTube</string>
+    <string name="mark_favorite">Mark as favorite</string>
+    <string name="remove_favorite">Remove favorite</string>
 </resources>

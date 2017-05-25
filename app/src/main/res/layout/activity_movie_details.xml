@@ -88,6 +88,13 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:textSize="16sp" />
+
+                    <Button
+                        android:id="@+id/detail_movie_favorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/mark_favorite"
+                        android:onClick="markFavorite"/>
                 </LinearLayout>
             </LinearLayout>
 

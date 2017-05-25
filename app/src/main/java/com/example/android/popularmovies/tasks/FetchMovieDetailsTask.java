@@ -7,7 +7,7 @@ import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 /**
  * AsyncTask to fetch movie's data
  */
-public class FetchMovieDetailsTask extends AsyncTask<String, Void, Movie> {
+public class FetchMovieDetailsTask extends AsyncTask<Movie, Void, Movie> {
 
     private FetchMovieDetailsListener listener;
     private MovieDbHelper movieDbHelper;
@@ -28,13 +28,13 @@ public class FetchMovieDetailsTask extends AsyncTask<String, Void, Movie> {
      * @return Selected movie details
      */
     @Override
-    protected Movie doInBackground(String... params) {
+    protected Movie doInBackground(Movie... params) {
         if (params.length == 0) {
             return null;
         }
-        String movieId = params[0];
+        Movie movie = params[0];
 
-        return movieDbHelper.getMovieDetails(movieId);
+        return movieDbHelper.getMovieDetails(movie);
     }
 
     /**

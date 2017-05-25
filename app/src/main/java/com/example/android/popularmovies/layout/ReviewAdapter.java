@@ -17,33 +17,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdap
     private List<ReviewsResult> mReviewsList;
     private Context context;
 
-    /*
-     * An on-click handler that we've defined to make it easy for an Activity to interface with
-     * our RecyclerView
-     */
-    private final ReviewAdapterOnClickHandler mClickHandler;
-
-    /**
-     * The interface that receives onClick messages.
-     */
-    public interface ReviewAdapterOnClickHandler {
-        void onReviewClick(ReviewsResult reviewSelected);
-    }
-
-    /**
-     * Creates a ReviewAdapter.
-     *
-     * @param clickHandler The on-click handler for this adapter. This single handler is called
-     *                     when an item is clicked.
-     */
-    public ReviewAdapter(ReviewAdapterOnClickHandler clickHandler) {
-        mClickHandler = clickHandler;
-    }
-
     /**
      * Cache of the children views for a review list item.
      */
-    public class ReviewAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ReviewAdapterViewHolder extends RecyclerView.ViewHolder {
         public final TextView mReviewContent;
         public final TextView mReviewAuthor;
         public final TextView mReviewUrl;
@@ -53,19 +30,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdap
             mReviewAuthor = (TextView) view.findViewById(R.id.movie_review_author);
             mReviewContent = (TextView) view.findViewById(R.id.movie_review_content);
             mReviewUrl = (TextView) view.findViewById(R.id.movie_review_url);
-            view.setOnClickListener(this);
-        }
-
-        /**
-         * This gets called by the child views during a click.
-         *
-         * @param v The View that was clicked
-         */
-        @Override
-        public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            ReviewsResult reviewSelected = mReviewsList.get(adapterPosition);
-            mClickHandler.onReviewClick(reviewSelected);
         }
     }
 
@@ -97,19 +61,19 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdap
      * details for this particular position, using the "position" argument that is conveniently
      * passed into us.
      *
-     * @param ReviewAdapterViewHolder The ViewHolder which should be updated to represent the
+     * @param reviewAdapterViewHolder The ViewHolder which should be updated to represent the
      *                                  contents of the item at the given position in the data set.
      * @param position                  The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(final ReviewAdapterViewHolder ReviewAdapterViewHolder, int position) {
+    public void onBindViewHolder(final ReviewAdapterViewHolder reviewAdapterViewHolder, int position) {
         ReviewsResult reviewSelected = mReviewsList.get(position);
         String reviewAuthor = reviewSelected.getAuthor();
         String reviewContent = reviewSelected.getContent();
         String reviewUrl = reviewSelected.getUrl();
-        ReviewAdapterViewHolder.mReviewContent.setText(reviewContent);
-        ReviewAdapterViewHolder.mReviewAuthor.setText(reviewAuthor);
-        ReviewAdapterViewHolder.mReviewUrl.setText(reviewUrl);
+        reviewAdapterViewHolder.mReviewContent.setText(reviewContent);
+        reviewAdapterViewHolder.mReviewAuthor.setText(reviewAuthor);
+        reviewAdapterViewHolder.mReviewUrl.setText(reviewUrl);
     }
 
     /**
@@ -126,10 +90,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdap
 
     /**
      * Sets Adapter data
-     * @param ReviewsResults List of ReviewsResult
+     * @param reviewsResults List of ReviewsResult
      */
-    public void setData(List<ReviewsResult> ReviewsResults) {
-        mReviewsList = ReviewsResults;
+    public void setData(List<ReviewsResult> reviewsResults) {
+        mReviewsList = reviewsResults;
         notifyDataSetChanged();
     }
 }
