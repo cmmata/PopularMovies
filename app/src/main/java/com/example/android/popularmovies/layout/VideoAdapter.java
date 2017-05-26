@@ -15,7 +15,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapterViewHolder>{
+public class VideoAdapter extends RecyclerView.Adapter<VideoAdapterViewHolder>{
 
     private List<VideosResult> mVideosList;
     private Context context;
@@ -27,13 +27,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
     private final VideoAdapterOnClickHandler mClickHandler;
 
     /**
-     * The interface that receives onClick messages.
-     */
-    public interface VideoAdapterOnClickHandler {
-        void onVideoClick(VideosResult videoSelected);
-    }
-
-    /**
      * Creates a VideoAdapter.
      *
      * @param clickHandler The on-click handler for this adapter. This single handler is called
@@ -41,31 +34,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
      */
     public VideoAdapter(VideoAdapterOnClickHandler clickHandler) {
         mClickHandler = clickHandler;
-    }
-
-    /**
-     * Cache of the children views for a video list item.
-     */
-    public class VideoAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public final TextView mVideoTextView;
-
-        public VideoAdapterViewHolder(View view) {
-            super(view);
-            mVideoTextView = (TextView) view.findViewById(R.id.movie_trailer_title);
-            view.setOnClickListener(this);
-        }
-
-        /**
-         * This gets called by the child views during a click.
-         *
-         * @param v The View that was clicked
-         */
-        @Override
-        public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            VideosResult videoSelected = mVideosList.get(adapterPosition);
-            mClickHandler.onVideoClick(videoSelected);
-        }
     }
 
     /**
@@ -87,7 +55,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
         boolean shouldAttachToParentImmediately = false;
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, shouldAttachToParentImmediately);
-        return new VideoAdapterViewHolder(view);
+        return new VideoAdapterViewHolder(view, mVideosList, mClickHandler);
     }
 
     /**

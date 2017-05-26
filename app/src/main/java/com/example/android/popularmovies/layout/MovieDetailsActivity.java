@@ -1,5 +1,6 @@
 package com.example.android.popularmovies.layout;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,7 +23,6 @@ import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.data.MovieContract;
 import com.example.android.popularmovies.tasks.FetchMovieDetailsListener;
 import com.example.android.popularmovies.tasks.FetchMovieDetailsTask;
-import com.example.android.popularmovies.themoviedb.Genre;
 import com.example.android.popularmovies.themoviedb.Movie;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.Reviews;
@@ -29,23 +30,23 @@ import com.example.android.popularmovies.themoviedb.Videos;
 import com.example.android.popularmovies.themoviedb.VideosResult;
 import com.squareup.picasso.Picasso;
 
-public class MovieDetailsActivity extends AppCompatActivity implements VideoAdapter.VideoAdapterOnClickHandler, FetchMovieDetailsListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class MovieDetailsActivity extends AppCompatActivity implements VideoAdapterOnClickHandler, FetchMovieDetailsListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private ImageView mMoviePoster;
-    private Integer mMovieId;
+    private int mMovieId;
     private TextView mMovieTitle;
     private TextView mMovieDate;
     private TextView mMovieRate;
     private TextView mMovieGenre;
     private TextView mMovieSynopsis;
+    private Button mMarkAsFavorite;
     private MovieDbHelper movieDbHelper;
     private Context context;
     private RecyclerView mRecyclerViewVideos;
     private VideoAdapter mVideoAdapter;
     private RecyclerView mRecyclerViewReviews;
     private ReviewAdapter mReviewAdapter;
-    private Movie movie;
-    private Intent fatherIntent;
+    private Movie movieSelected;
     // Constants for logging and referring to a unique loader
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int MOVIE_LOADER_ID = 0;
@@ -62,9 +63,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
         mMovieRate = (TextView) findViewById(R.id.detail_movie_rate);
         mMovieGenre = (TextView) findViewById(R.id.detail_movie_genre);
         mMovieSynopsis = (TextView) findViewById(R.id.detail_movie_synopsis);
+        mMarkAsFavorite = (Button) findViewById(R.id.detail_movie_favorite);
         initializeVideos();
         initializeReviews();
-        fatherIntent = getIntent();
+        Intent fatherIntent = getIntent();
         movieDbHelper = new MovieDbHelper(this);
         if (fatherIntent != null && fatherIntent.hasExtra(Intent.EXTRA_TEXT)) {
             mMovieId = Integer.valueOf(fatherIntent.getStringExtra(Intent.EXTRA_TEXT));
@@ -73,7 +75,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
     }
 
     /**
-     * Updates the movie trailers
+     * Updates the movieSelected trailers
      * @param movieDetails Details
      */
     @Override
@@ -81,14 +83,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
         if (movieDetails != null) {
             mMovieTitle.setText(movieDetails.getTitle());
             mMovieDate.setText(movieDetails.getReleaseDate());
-            StringBuilder genres = new StringBuilder();
-            String sep = "";
-            for (Genre genre : movieDetails.getGenres()) {
-                genres.append(sep);
-                genres.append(genre.getName());
-                sep = ", ";
-            }
-            mMovieGenre.setText(genres.toString());
+            mMovieGenre.setText(movieDetails.getGenresString());
             mMovieRate.setText(getResources().getString(R.string.rating, movieDetails.getVoteAverage()));
             mMovieSynopsis.setText(movieDetails.getOverview());
             Log.d("Movies", movieDetails.getPosterPath());
@@ -109,6 +104,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
             mVideoAdapter.setData(trailers.getResults());
             Reviews reviews = movieDetails.getReviews();
             mReviewAdapter.setData(reviews.getResults());
+            movieSelected = movieDetails;
         }
     }
 
@@ -128,18 +124,19 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
     }
 
     /**
-     * Load movie details, via database or API
-     * @param fatherIntent Intent who calls
+     * Load movieSelected details, via database or API
      * @param data Movie data, if found in database
      */
-    private void loadMovieData(Intent fatherIntent, Cursor data) {
+    private void loadMovieData(Cursor data) {
 
         if (null != data && data.getCount() > 0) {
-            movie = new Movie(data);
+            movieSelected = new Movie(data);
+            buttonFavorite(true);
         } else {
-            movie = new Movie(mMovieId);
+            movieSelected = new Movie(mMovieId);
+            buttonFavorite(false);
         }
-        new FetchMovieDetailsTask(this, movieDbHelper).execute(movie);
+        new FetchMovieDetailsTask(this, movieDbHelper).execute(movieSelected);
     }
 
     /**
@@ -171,7 +168,38 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
      * @param view View
      */
     public void markFavorite(View view) {
+        if (movieSelected.isFavorite()) {
+            String selection = MovieContract.MovieEntry.COLUMN_ID + "=?";
+            String [] args = {Integer.toString(mMovieId)};
+            getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI, selection, args);
+        } else {
+            ContentValues cv = new ContentValues();
+            cv.put(MovieContract.MovieEntry.COLUMN_ID, movieSelected.getId());
+            cv.put(MovieContract.MovieEntry.COLUMN_TITLE, movieSelected.getTitle());
+            cv.put(MovieContract.MovieEntry.COLUMN_GENRE, movieSelected.getGenresString());
+            cv.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movieSelected.getReleaseDate());
+            cv.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS, movieSelected.getOverview());
+            cv.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, movieSelected.getPosterPath());
+            cv.put(MovieContract.MovieEntry.COLUMN_USER_RATE, movieSelected.getVoteAverage());
+            getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,cv);
+        }
+        buttonFavorite(!movieSelected.isFavorite());
+    }
 
+    /**
+     * Sets the button status (favorited or not)
+     * @param active Favorite movie
+     */
+    private void buttonFavorite(boolean active) {
+        if (active) {
+            movieSelected.setFavorite(true);
+            mMarkAsFavorite.setText(R.string.remove_favorite);
+            mMarkAsFavorite.setBackgroundResource(R.color.colorFavoriteOff);
+        } else {
+            movieSelected.setFavorite(false);
+            mMarkAsFavorite.setText(R.string.mark_favorite);
+            mMarkAsFavorite.setBackgroundResource(R.color.colorFavoriteOn);
+        }
     }
 
     /**
@@ -203,8 +231,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
             // loadInBackground() performs asynchronous loading of data
             @Override
             public Cursor loadInBackground() {
-                String selection = "_id=?";
-                String [] args = {mMovieId.toString()};
+                String selection = MovieContract.MovieEntry.COLUMN_ID + "=?";
+                String [] args = {Integer.toString(mMovieId)};
 
                 try {
                     return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
@@ -212,10 +240,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
                             selection,
                             args,
                             MovieContract.MovieEntry._ID);
-
                 } catch (Exception e) {
-                    Log.e(TAG, "Failed to asynchronously load data.");
-                    e.printStackTrace();
+                    Log.e(TAG, e.toString());
                     return null;
                 }
             }
@@ -231,11 +257,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        loadMovieData(fatherIntent, data);
+        loadMovieData(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        loadMovieData(fatherIntent, null);
+        loadMovieData(null);
     }
 }

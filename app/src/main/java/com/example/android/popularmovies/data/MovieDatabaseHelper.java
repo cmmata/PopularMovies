@@ -16,7 +16,7 @@ public class MovieDatabaseHelper extends SQLiteOpenHelper {
     /**
      * Database version. Updated on every schema change
      */
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     /**
      * Constructor
@@ -34,9 +34,11 @@ public class MovieDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_MOVIES_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
                 MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                MovieEntry.COLUMN_ID + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_GENRE + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RELEASE_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_SYNOPSIS + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_USER_RATE + " REAL NOT NULL " + "); ";
         db.execSQL(SQL_CREATE_MOVIES_TABLE);

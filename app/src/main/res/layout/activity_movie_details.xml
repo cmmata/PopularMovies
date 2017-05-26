@@ -94,7 +94,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/mark_favorite"
-                        android:onClick="markFavorite"/>
+                        android:background="@color/colorFavoriteOn"
+                        android:onClick="markFavorite"
+                        android:padding="10sp"/>
                 </LinearLayout>
             </LinearLayout>
 

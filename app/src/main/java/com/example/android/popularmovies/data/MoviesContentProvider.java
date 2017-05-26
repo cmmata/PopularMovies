@@ -24,8 +24,10 @@ public class MoviesContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        final SQLiteDatabase db = movieDatabaseHelper.getReadableDatabase();
+        int rowsDeleted = db.delete (MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+
+        return rowsDeleted;
     }
 
     @Override

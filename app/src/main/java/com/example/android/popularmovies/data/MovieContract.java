@@ -16,10 +16,12 @@ public class MovieContract {
     public static final class MovieEntry implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES).build();
         public static final String TABLE_NAME = "movies";
+        public static final String COLUMN_ID = "movieId";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_RELEASE_DATE = "releaseDate";
         public static final String COLUMN_GENRE = "genre";
         public static final String COLUMN_USER_RATE = "userRate";
         public static final String COLUMN_SYNOPSIS = "synopsis";
+        public static final String COLUMN_POSTER_PATH = "posterPath";
     }
 }
