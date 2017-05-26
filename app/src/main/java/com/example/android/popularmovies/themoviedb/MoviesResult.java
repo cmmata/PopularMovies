@@ -1,14 +1,16 @@
 package com.example.android.popularmovies.themoviedb;
 
 
+import android.database.Cursor;
+
+import com.example.android.popularmovies.data.MovieContract;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import java.util.List;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -66,6 +68,20 @@ public class MoviesResult {
      *
      */
     public MoviesResult() {
+    }
+
+    /**
+     * Constructor with database data
+     * @param movieData Movie data from database
+     */
+    public MoviesResult(Cursor movieData) {
+        if (movieData.getCount() > 0) {
+            this.id = movieData.getInt(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID));
+            this.title = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+            String urlPath = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH));
+            String[] posterParts = urlPath.split("/");
+            this.posterPath = posterParts[posterParts.length - 1];
+        }
     }
 
     /**

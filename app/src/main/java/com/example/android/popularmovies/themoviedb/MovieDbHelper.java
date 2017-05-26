@@ -23,9 +23,14 @@ public class MovieDbHelper {
     public static final String POPULAR_ORDER = "popular";
 
     /**
-     * Default order when we open the App
+     * Order by top rated
      */
     public static final String RATED_ORDER = "top_rated";
+
+    /**
+     * Show only favorites
+     */
+    public static final String FAVORITES_ORDER = "favorites";
 
     /**
      * Selected order (popular / top_rated)

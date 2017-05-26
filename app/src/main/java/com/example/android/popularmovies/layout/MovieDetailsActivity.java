@@ -49,7 +49,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
     private Movie movieSelected;
     // Constants for logging and referring to a unique loader
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int MOVIE_LOADER_ID = 0;
+    private static final int MOVIE_LOADER_ID = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +130,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
     private void loadMovieData(Cursor data) {
 
         if (null != data && data.getCount() > 0) {
+            data.moveToFirst();
             movieSelected = new Movie(data);
             buttonFavorite(true);
         } else {
@@ -232,7 +233,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
             @Override
             public Cursor loadInBackground() {
                 String selection = MovieContract.MovieEntry.COLUMN_ID + "=?";
-                String [] args = {Integer.toString(mMovieId)};
+                String[] args = {Integer.toString(mMovieId)};
 
                 try {
                     return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,

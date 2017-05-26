@@ -1,9 +1,10 @@
 package com.example.android.popularmovies;
 
-import android.app.LoaderManager;
+import android.support.v4.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static final String ORDER_SELECTED_KEY = "orderSelected";
     private static final String TITLE_KEY = "title";
     private SQLiteDatabase mDatabase;
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int MOVIE_LOADER_ID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +134,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mActionBar.setTitle(mainTitle);
             new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(MovieDbHelper.RATED_ORDER);
             return true;
+        } else if (id == R.id.sort_favorites) {
+            String favorites = getResources().getString(R.string.sort_favorites);
+            orderSelected = MovieDbHelper.FAVORITES_ORDER;
+            mainTitle = getResources().getString(R.string.app_name) + " - " + favorites;
+            mActionBar.setTitle(mainTitle);
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         }
 
         return super.onOptionsItemSelected(item);
@@ -197,17 +207,68 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
+    public Loader<Cursor> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<Cursor>(this) {
+
+            // Initialize a Cursor, this will hold all the task data
+            Cursor mVideoData = null;
+
+            // onStartLoading() is called when a loader first starts loading data
+            @Override
+            protected void onStartLoading() {
+                if (mVideoData != null) {
+                    // Delivers any previously loaded data immediately
+                    deliverResult(mVideoData);
+                } else {
+                    // Force a new load
+                    forceLoad();
+                }
+            }
+
+            // loadInBackground() performs asynchronous loading of data
+            @Override
+            public Cursor loadInBackground() {
+                String selection = "";
+                String[] args = {};
+
+                try {
+                    return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                            null,
+                            selection,
+                            args,
+                            MovieContract.MovieEntry._ID);
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                    return null;
+                }
+            }
+
+            // deliverResult sends the result of the load, a Cursor, to the registered listener
+            public void deliverResult(Cursor data) {
+                mVideoData = data;
+                super.deliverResult(data);
+            }
+        };
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+        loadMoviesList(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        loadMoviesList(null);
+    }
 
+    /**
+     * Fill Recyclerview with database data
+     * @param moviesList Cursor with data
+     */
+    private void loadMoviesList(Cursor moviesList) {
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        mMovieAdapter.setCursorData(moviesList);
     }
 }

@@ -9,6 +9,7 @@
     <string name="genre">Genres</string>
     <string name="sort_popular">Most popular</string>
     <string name="sort_rated">Highest rated</string>
+    <string name="sort_favorites">Favorites</string>
     <string name="connection_error">There is a connectivity error. Please check your internet connection and try again.</string>
     <string name="videos">Videos</string>
     <string name="movie_trailer">Movie trailer</string>

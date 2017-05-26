@@ -115,7 +115,6 @@ public class Movie {
      */
     public Movie(Cursor movieData) {
         if (movieData.getCount() > 0) {
-            movieData.moveToPosition(0);
             this.id = movieData.getInt(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID));
             this.title = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
             String genre = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_GENRE));
