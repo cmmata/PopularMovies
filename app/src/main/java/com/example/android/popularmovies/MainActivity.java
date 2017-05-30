@@ -285,9 +285,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      * @param moviesList Cursor with data
      */
     private void loadMoviesList(Cursor moviesList) {
-        mRecyclerView.setVisibility(View.VISIBLE);
-        mLoadingIndicator.setVisibility(View.INVISIBLE);
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        mMovieAdapter.setCursorData(moviesList);
+        if (null != moviesList && moviesList.getCount() > 0) {
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+            mMovieAdapter.setCursorData(moviesList);
+        } else {
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_favorites), duration);
+            toast.show();
+        }
     }
 }

@@ -10,6 +10,8 @@
         android:id="@+id/movie_trailer_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        style="@style/titleFonts"
+        android:layout_gravity="center_vertical"
         android:drawableLeft="@android:drawable/ic_media_play"
         android:drawableStart="@android:drawable/ic_media_play"/>
 

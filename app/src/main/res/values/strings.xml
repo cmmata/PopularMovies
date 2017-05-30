@@ -11,6 +11,7 @@
     <string name="sort_rated">Highest rated</string>
     <string name="sort_favorites">Favorites</string>
     <string name="connection_error">There is a connectivity error. Please check your internet connection and try again.</string>
+    <string name="no_favorites">You don\'t have any favorited movie</string>
     <string name="videos">Videos</string>
     <string name="movie_trailer">Movie trailer</string>
     <string name="divider">Divider</string>
