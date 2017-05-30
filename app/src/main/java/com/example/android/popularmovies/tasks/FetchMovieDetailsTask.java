@@ -14,11 +14,11 @@ public class FetchMovieDetailsTask extends AsyncTask<Movie, Void, Movie> {
 
     /**
      * Constructor
-     * @param listener Listener to talk with MovieDetailsActivity
-     * @param movieDbHelper Helper to fetch MovieDatabase's API
+     * @param detailsListener Listener to talk with MovieDetailsActivity
+     * @param movieDbHelper   Helper to fetch MovieDatabase's API
      */
-    public FetchMovieDetailsTask(FetchMovieDetailsListener listener, MovieDbHelper movieDbHelper){
-        this.listener = listener;
+    public FetchMovieDetailsTask(FetchMovieDetailsListener detailsListener, MovieDbHelper movieDbHelper){
+        this.listener = detailsListener;
         this.movieDbHelper = movieDbHelper;
     }
     /**

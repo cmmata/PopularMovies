@@ -7,7 +7,6 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.ActionBar;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.popularmovies.data.MovieContract;
-import com.example.android.popularmovies.data.MovieDatabaseHelper;
 import com.example.android.popularmovies.layout.MovieAdapter;
 import com.example.android.popularmovies.layout.MovieDetailsActivity;
 import com.example.android.popularmovies.tasks.FetchMoviesListener;
@@ -34,6 +32,9 @@ import com.example.android.popularmovies.themoviedb.MoviesList;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
 import com.example.android.popularmovies.tasks.FetchMoviesTask;
 
+/**
+ * Main Activity
+ */
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private RecyclerView mRecyclerView;
@@ -46,10 +47,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String orderSelected = MovieDbHelper.POPULAR_ORDER;
     private static final String ORDER_SELECTED_KEY = "orderSelected";
     private static final String TITLE_KEY = "title";
-    private SQLiteDatabase mDatabase;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int MOVIE_LOADER_ID = 0;
 
+    /**
+     * On create Main activity
+     * @param savedInstanceState App's state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,8 +90,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mActionBar.setTitle(mainTitle);
         }
         new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(orderSelected);
-        MovieDatabaseHelper movieDatabaseHelper = new MovieDatabaseHelper(this);
-        mDatabase = movieDatabaseHelper.getWritableDatabase();
     }
 
     /**
@@ -109,6 +111,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
     }
 
+    /**
+     * Create menu options
+     * @param menu App menu
+     *
+     * @return menu created
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -116,6 +124,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return true;
     }
 
+    /**
+     * Select a menu option
+     * @param item Menu item
+     *
+     * @return menu item selected
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -189,23 +203,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     /**
-     * Gets all favorited movies
-     * @return Cursor with favorite movies
+     * Create Database Loader
+     * @param id   ID
+     * @param args Arguments
+     *
+     * @return Cursor with loaded data
      */
-    private Cursor getAllFavorites() {
-        try {
-            return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
-                            null,
-                            null,
-                            null,
-                            MovieContract.MovieEntry._ID);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, final Bundle args) {
         return new AsyncTaskLoader<Cursor>(this) {
@@ -213,7 +216,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             // Initialize a Cursor, this will hold all the task data
             Cursor mVideoData = null;
 
-            // onStartLoading() is called when a loader first starts loading data
+            /**
+             * called when a loader first starts loading data
+             */
             @Override
             protected void onStartLoading() {
                 if (mVideoData != null) {
@@ -225,7 +230,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 }
             }
 
-            // loadInBackground() performs asynchronous loading of data
+            /**
+             * Performs asynchronous loading of data
+             */
             @Override
             public Cursor loadInBackground() {
                 String selection = "";
@@ -243,7 +250,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 }
             }
 
-            // deliverResult sends the result of the load, a Cursor, to the registered listener
+            /**
+             * Sends the result of the load, a Cursor, to the registered listener
+             * @param data Cursor with returned data
+             */
             public void deliverResult(Cursor data) {
                 mVideoData = data;
                 super.deliverResult(data);
@@ -251,11 +261,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         };
     }
 
+    /**
+     * Data is loaded
+     * @param loader Loader to call
+     * @param data   Data retrieved
+     */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         loadMoviesList(data);
     }
 
+    /**
+     * Loader reset
+     * @param loader Loader to call
+     */
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         loadMoviesList(null);

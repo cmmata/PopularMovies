@@ -30,6 +30,9 @@ import com.example.android.popularmovies.themoviedb.Videos;
 import com.example.android.popularmovies.themoviedb.VideosResult;
 import com.squareup.picasso.Picasso;
 
+/**
+ * Details view
+ */
 public class MovieDetailsActivity extends AppCompatActivity implements VideoAdapterOnClickHandler, FetchMovieDetailsListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private ImageView mMoviePoster;
@@ -51,6 +54,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int MOVIE_LOADER_ID = 1;
 
+    /**
+     * Create a details view
+     * @param savedInstanceState App's instance state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -256,11 +263,20 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideoAdap
 
     }
 
+    /**
+     * Finished loading movie data
+     * @param loader Database Loader
+     * @param data   Cursor with movie's data
+     */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         loadMovieData(data);
     }
 
+    /**
+     * When loader resets
+     * @param loader Database Loader
+     */
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         loadMovieData(null);

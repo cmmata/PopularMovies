@@ -127,13 +127,16 @@ public class MovieDbHelper {
     public Movie getMovieDetails(Movie movie) {
         String movieId = movie.getId().toString();
         Gson gson = new Gson();
+        Movie movieResult;
         if (null == movie.getTitle()) {
             Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
                     .appendPath(movieId)
                     .appendQueryParameter(PARAM_API, apiToken)
                     .build();
             String movieDetails = NetworkUtils.getApiCallResult(movieDbApiUrl);
-            movie = gson.fromJson(movieDetails, Movie.class);
+            movieResult = gson.fromJson(movieDetails, Movie.class);
+        } else {
+            movieResult = new Movie(Integer.valueOf(movieId));
         }
         //Get videos
         Uri movieDbApiUrlVideos = Uri.parse(API_URL).buildUpon()
@@ -143,7 +146,7 @@ public class MovieDbHelper {
                 .build();
         String movieVideos = NetworkUtils.getApiCallResult(movieDbApiUrlVideos);
         Videos trailers = gson.fromJson(movieVideos, Videos.class);
-        movie.setTrailers(trailers);
+        movieResult.setTrailers(trailers);
         //Get reviews
         Uri movieDbApiUrlReviews = Uri.parse(API_URL).buildUpon()
                 .appendPath(movieId)
@@ -152,8 +155,8 @@ public class MovieDbHelper {
                 .build();
         String movieReview = NetworkUtils.getApiCallResult(movieDbApiUrlReviews);
         Reviews reviews = gson.fromJson(movieReview, Reviews.class);
-        movie.setReviews(reviews);
+        movieResult.setReviews(reviews);
 
-        return movie;
+        return movieResult;
     }
 }

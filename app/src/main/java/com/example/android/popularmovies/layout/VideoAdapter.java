@@ -5,22 +5,21 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.themoviedb.MoviesResult;
 import com.example.android.popularmovies.themoviedb.VideosResult;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+/**
+ * Adapter to build a video trailers list
+ */
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapterViewHolder>{
 
     private List<VideosResult> mVideosList;
     private Context context;
 
-    /*
+    /**
      * An on-click handler that we've defined to make it easy for an Activity to interface with
      * our RecyclerView
      */

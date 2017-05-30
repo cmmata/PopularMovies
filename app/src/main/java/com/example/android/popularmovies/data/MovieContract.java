@@ -13,6 +13,9 @@ public class MovieContract {
     // Define the possible paths for accessing data in this contract
     public static final String PATH_MOVIES = "movies";
 
+    /**
+     * Table definition
+     */
     public static final class MovieEntry implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES).build();
         public static final String TABLE_NAME = "movies";

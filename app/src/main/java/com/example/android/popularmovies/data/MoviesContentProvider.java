@@ -11,6 +11,9 @@ import android.net.Uri;
 
 import static com.example.android.popularmovies.data.MovieContract.MovieEntry.TABLE_NAME;
 
+/**
+ * ContentProvider to access movies data
+ */
 public class MoviesContentProvider extends ContentProvider {
     private static MovieDatabaseHelper movieDatabaseHelper;
     // It's convention to use 100, 200, 300, etc for directories
@@ -19,24 +22,48 @@ public class MoviesContentProvider extends ContentProvider {
     public static final int MOVIE_WITH_ID = 101;
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
+    /**
+     * Default constructor
+     */
     public MoviesContentProvider() {
+        //No special actions
     }
 
+    /**
+     * Delete movies from favorites
+     * @param uri           Movies URI
+     * @param selection     Select clause
+     * @param selectionArgs Arguments to select clause
+     *
+     * @return number of deleted items
+     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = movieDatabaseHelper.getReadableDatabase();
-        int rowsDeleted = db.delete (MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
 
-        return rowsDeleted;
+        return db.delete (MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
     }
 
+    /**
+     * Get URI Type
+     * @param uri URI
+     *
+     * @return Type
+     */
     @Override
     public String getType(Uri uri) {
-        // TODO: Implement this to handle requests for the MIME type of the data
+        // Implement this to handle requests for the MIME type of the data
         // at the given URI.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    /**
+     * Insert a movie into favorites
+     * @param uri    Movies URI
+     * @param values Movie data
+     *
+     * @return Uri of inserted item
+     */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = movieDatabaseHelper.getReadableDatabase();
@@ -111,13 +138,27 @@ public class MoviesContentProvider extends ContentProvider {
         return retCursor;
     }
 
+    /**
+     * Update a favorite. (Not used)
+     * @param uri           Movies URI
+     * @param values        New values
+     * @param selection     Where clause
+     * @param selectionArgs Where arguments
+     *
+     * @return number of modified items
+     */
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
+        //Implement this to handle requests to update one or more rows.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    /**
+     * Match URI
+     *
+     * @return UriMatcher
+     */
     public static UriMatcher buildUriMatcher() {
         // Initialize a UriMatcher with no matches by passing in NO_MATCH to the constructor
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);

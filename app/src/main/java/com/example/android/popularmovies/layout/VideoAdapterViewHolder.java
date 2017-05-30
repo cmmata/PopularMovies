@@ -17,10 +17,16 @@ public class VideoAdapterViewHolder  extends RecyclerView.ViewHolder implements 
     private List<VideosResult> mVideosList;
     private VideoAdapterOnClickHandler mClickHandler;
 
-    public VideoAdapterViewHolder(View view, List<VideosResult> mVideosList, VideoAdapterOnClickHandler mClickHandler) {
+    /**
+     * Constructor
+     * @param view          View
+     * @param videosList    List of videos
+     * @param mClickHandler ClickHandler
+     */
+    public VideoAdapterViewHolder(View view, List<VideosResult> videosList, VideoAdapterOnClickHandler mClickHandler) {
         super(view);
         mVideoTextView = (TextView) view.findViewById(R.id.movie_trailer_title);
-        this.mVideosList = mVideosList;
+        this.mVideosList = videosList;
         this.mClickHandler = mClickHandler;
         view.setOnClickListener(this);
     }

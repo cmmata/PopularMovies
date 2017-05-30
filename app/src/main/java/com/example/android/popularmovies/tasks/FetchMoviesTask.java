@@ -18,12 +18,12 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, MoviesList> {
 
     /**
      * Constructor
-     * @param listener Activity's listener
-     * @param movieDbHelper Helper to fetch MovieDatabase's API
-     * @param isOnline To check if the App has internet connection
+     * @param moviesListener Activity's listener
+     * @param movieDbHelper  Helper to fetch MovieDatabase's API
+     * @param isOnline       To check if the App has internet connection
      */
-    public FetchMoviesTask (FetchMoviesListener listener, MovieDbHelper movieDbHelper, boolean isOnline) {
-        this.listener = listener;
+    public FetchMoviesTask (FetchMoviesListener moviesListener, MovieDbHelper movieDbHelper, boolean isOnline) {
+        this.listener = moviesListener;
         this.movieDbHelper = movieDbHelper;
         this.isOnline = isOnline;
     }

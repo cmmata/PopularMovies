@@ -12,6 +12,9 @@ import com.example.android.popularmovies.themoviedb.ReviewsResult;
 
 import java.util.List;
 
+/**
+ * Adapter to build a reviews list
+ */
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdapterViewHolder>{
 
     private List<ReviewsResult> mReviewsList;
@@ -25,6 +28,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdap
         public final TextView mReviewAuthor;
         public final TextView mReviewUrl;
 
+        /**
+         * Constructor
+         * @param view View
+         */
         public ReviewAdapterViewHolder(View view) {
             super(view);
             mReviewAuthor = (TextView) view.findViewById(R.id.movie_review_author);
