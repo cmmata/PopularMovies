@@ -17,14 +17,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/detail_movie_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -34,7 +26,7 @@
                     android:id="@+id/detail_movie_thumb"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight=".45"
+                    android:layout_weight="1"
                     android:adjustViewBounds="true"
                     android:background="@android:color/white"
                     android:contentDescription="@string/movie_thumbnail" />
@@ -44,50 +36,58 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
                     android:layout_marginStart="15dp"
-                    android:layout_weight=".55"
+                    android:layout_weight="2"
                     android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/detail_movie_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/detail_movie_date_tag"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/release_date"
-                        style="@style/titleFonts" />
+                        style="@style/titleFontsTabletTag" />
 
                     <TextView
                         android:id="@+id/detail_movie_date"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
-                        android:textSize="16sp" />
+                        style="@style/titleFontsTablet" />
 
                     <TextView
                         android:id="@+id/detail_movie_genre_tag"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/genre"
-                        style="@style/titleFonts" />
+                        style="@style/titleFontsTabletTag" />
 
                     <TextView
                         android:id="@+id/detail_movie_genre"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
-                        android:textSize="16sp" />
+                        style="@style/titleFontsTablet" />
 
                     <TextView
                         android:id="@+id/detail_movie_rate_tag"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/rate"
-                        style="@style/titleFonts" />
+                        style="@style/titleFontsTabletTag" />
 
                     <TextView
                         android:id="@+id/detail_movie_rate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
-                        android:textSize="16sp" />
+                        style="@style/titleFontsTablet" />
 
                     <Button
                         android:id="@+id/detail_movie_favorite"
@@ -96,38 +96,32 @@
                         android:text="@string/mark_favorite"
                         android:background="@color/colorFavoriteOn"
                         android:onClick="markFavorite"
-                        android:padding="10sp"/>
+                        android:padding="10sp"
+                        android:layout_marginBottom="5dp"/>
+
+                    <TextView
+                        android:id="@+id/detail_movie_synopsis_tag"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/synopsis"
+                        style="@style/titleFontsTabletTag" />
+
+                    <TextView
+                        android:id="@+id/detail_movie_synopsis"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/titleFontsTablet" />
                 </LinearLayout>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/detail_movie_synopsis_tag"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="@string/synopsis"
-                style="@style/titleFonts" />
-
-            <TextView
-                android:id="@+id/detail_movie_synopsis"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp" />
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/divider_horizontal_bright"
-                android:background="@color/colorFonts"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="15dp"
-                android:contentDescription="@string/divider"/>
             <!-- Videos -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginTop="10dp">
 
                 <TextView
                     android:id="@+id/detail_movie_videos_tag"
@@ -136,7 +130,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="5dp"
                     android:text="@string/videos"
-                    style="@style/titleFonts"/>
+                    style="@style/titleFontsTabletTag"/>
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recyclerview_videos"
@@ -156,7 +150,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="5dp"
                     android:text="@string/reviews"
-                    style="@style/titleFonts"/>
+                    style="@style/titleFontsTabletTag"/>
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recyclerview_reviews"

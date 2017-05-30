@@ -1,7 +1,13 @@
 package com.example.android.popularmovies.themoviedb;
 
+import android.database.Cursor;
+
+import com.example.android.popularmovies.data.MovieContract;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -85,7 +91,47 @@ public class Movie {
   @Expose
     private Integer voteCount;
 
+    private Videos trailers;
+
+    private Reviews reviews;
+
     private static String THUMB_URL = "http://image.tmdb.org/t/p/w342/";
+
+    private boolean favorite;
+
+    /**
+     * Constructor with movie ID
+     * @param movieId Movie ID
+     */
+    public Movie(Integer movieId) {
+        this.id = movieId;
+        this.favorite = false;
+    }
+
+    /**
+     * Constructor with database data
+     * @param movieData Movie data from database
+     */
+    public Movie(Cursor movieData) {
+        if (movieData.getCount() > 0) {
+            this.id = movieData.getInt(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID));
+            this.title = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+            String genre = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_GENRE));
+            this.genres = new ArrayList<>();
+            for (String item : Arrays.asList(genre.split("\\s*,\\s*"))) {
+                Genre genreTemp = new Genre();
+                genreTemp.setName(item);
+                this.genres.add(genreTemp);
+            }
+            this.releaseDate = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE));
+            this.overview = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_SYNOPSIS));
+            this.voteAverage = movieData.getDouble(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_USER_RATE));
+            String urlPath = movieData.getString(movieData.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH));
+            String[] posterParts = urlPath.split("/");
+            this.posterPath = posterParts[posterParts.length - 1];
+            this.favorite = true;
+        }
+    }
 
     public Boolean getAdult() {
         return adult;
@@ -125,6 +171,20 @@ public class Movie {
 
     public void setGenres(List<Genre> genres) {
         this.genres = genres;
+    }
+
+    public String getGenresString() {
+        StringBuilder genresReturn = new StringBuilder();
+        String sep = "";
+        if (null != this.getGenres() && !this.getGenres().isEmpty()) {
+            for (Genre genre : this.getGenres()) {
+                genresReturn.append(sep);
+                genresReturn.append(genre.getName());
+                sep = ", ";
+            }
+        }
+
+        return genresReturn.toString();
     }
 
     public String getHomepage() {
@@ -285,5 +345,29 @@ public class Movie {
 
     public void setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
+    }
+
+    public Videos getTrailers() {
+        return trailers;
+    }
+
+    public void setTrailers(Videos trailers) {
+        this.trailers = trailers;
+    }
+
+    public Reviews getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(Reviews reviews) {
+        this.reviews = reviews;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }

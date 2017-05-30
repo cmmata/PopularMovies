@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="15dp">
+
+    <TextView
+        android:id="@+id/movie_review_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@android:drawable/ic_menu_agenda"
+        android:drawableStart="@android:drawable/ic_menu_agenda"
+        android:layout_marginBottom="15dp"
+        style="@style/titleFonts" />
+
+    <TextView
+        android:id="@+id/movie_review_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/titleFonts" />
+    <TextView
+        android:id="@+id/movie_review_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+</LinearLayout>

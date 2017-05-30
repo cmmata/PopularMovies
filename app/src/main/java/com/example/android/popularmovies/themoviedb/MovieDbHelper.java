@@ -23,9 +23,14 @@ public class MovieDbHelper {
     public static final String POPULAR_ORDER = "popular";
 
     /**
-     * Default order when we open the App
+     * Order by top rated
      */
     public static final String RATED_ORDER = "top_rated";
+
+    /**
+     * Show only favorites
+     */
+    public static final String FAVORITES_ORDER = "favorites";
 
     /**
      * Selected order (popular / top_rated)
@@ -46,6 +51,16 @@ public class MovieDbHelper {
      * Results page parameter
      */
     private static final String PARAM_PAGE = "page";
+
+    /**
+     * Tag to access movie's videos
+     */
+    private static final String VIDEO_TAG = "videos";
+
+    /**
+     * Tag to access movie's reviews
+     */
+    private static final String REVIEW_TAG = "reviews";
 
     //TODO One can set the API response language by using the parameter '&language=es'
 
@@ -105,18 +120,43 @@ public class MovieDbHelper {
 
     /**
      * Get the movie details
-     * @param movieId Movie's ID
+     * @param movie Movie's ID
      *
      * @return Movie details
      */
-    public Movie getMovieDetails(String movieId) {
-        Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
+    public Movie getMovieDetails(Movie movie) {
+        String movieId = movie.getId().toString();
+        Gson gson = new Gson();
+        Movie movieResult;
+        if (null == movie.getTitle()) {
+            Uri movieDbApiUrl = Uri.parse(API_URL).buildUpon()
+                    .appendPath(movieId)
+                    .appendQueryParameter(PARAM_API, apiToken)
+                    .build();
+            String movieDetails = NetworkUtils.getApiCallResult(movieDbApiUrl);
+            movieResult = gson.fromJson(movieDetails, Movie.class);
+        } else {
+            movieResult = movie;
+        }
+        //Get videos
+        Uri movieDbApiUrlVideos = Uri.parse(API_URL).buildUpon()
                 .appendPath(movieId)
+                .appendPath(VIDEO_TAG)
                 .appendQueryParameter(PARAM_API, apiToken)
                 .build();
-        String movieDetails = NetworkUtils.getApiCallResult(movieDbApiUrl);
-        Gson gson = new Gson();
+        String movieVideos = NetworkUtils.getApiCallResult(movieDbApiUrlVideos);
+        Videos trailers = gson.fromJson(movieVideos, Videos.class);
+        movieResult.setTrailers(trailers);
+        //Get reviews
+        Uri movieDbApiUrlReviews = Uri.parse(API_URL).buildUpon()
+                .appendPath(movieId)
+                .appendPath(REVIEW_TAG)
+                .appendQueryParameter(PARAM_API, apiToken)
+                .build();
+        String movieReview = NetworkUtils.getApiCallResult(movieDbApiUrlReviews);
+        Reviews reviews = gson.fromJson(movieReview, Reviews.class);
+        movieResult.setReviews(reviews);
 
-        return gson.fromJson(movieDetails, Movie.class);
+        return movieResult;
     }
 }

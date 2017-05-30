@@ -1,6 +1,7 @@
 package com.example.android.popularmovies.layout;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder>{
@@ -140,5 +142,22 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     public void setData(List<MoviesResult> moviesData) {
         mMovieList = moviesData;
         notifyDataSetChanged();
+    }
+
+    /**
+     * Sets Adapter data
+     * @param moviesData List of MoviesResult
+     */
+    public void setCursorData(Cursor moviesData) {
+        List<MoviesResult> moviesList = new ArrayList<>();
+        if (null != moviesData && moviesData.getCount() > 0) {
+            //moviesData.moveToFirst();
+            while (moviesData.moveToNext()) {
+                MoviesResult movie = new MoviesResult(moviesData);
+                moviesList.add(movie);
+            }
+            mMovieList = moviesList;
+            notifyDataSetChanged();
+        }
     }
 }

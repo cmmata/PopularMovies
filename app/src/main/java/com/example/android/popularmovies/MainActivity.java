@@ -1,16 +1,20 @@
 package com.example.android.popularmovies;
 
+import android.support.v4.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,13 +23,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.popularmovies.data.MovieContract;
 import com.example.android.popularmovies.layout.MovieAdapter;
 import com.example.android.popularmovies.layout.MovieDetailsActivity;
+import com.example.android.popularmovies.tasks.FetchMoviesListener;
 import com.example.android.popularmovies.themoviedb.MovieDbHelper;
 import com.example.android.popularmovies.themoviedb.MoviesList;
 import com.example.android.popularmovies.themoviedb.MoviesResult;
+import com.example.android.popularmovies.tasks.FetchMoviesTask;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+/**
+ * Main Activity
+ */
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
@@ -37,7 +47,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String orderSelected = MovieDbHelper.POPULAR_ORDER;
     private static final String ORDER_SELECTED_KEY = "orderSelected";
     private static final String TITLE_KEY = "title";
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int MOVIE_LOADER_ID = 0;
 
+    /**
+     * On create Main activity
+     * @param savedInstanceState App's state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,8 +86,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mLoadingIndicator.setVisibility(View.VISIBLE);
         mActionBar = getSupportActionBar();
-        mActionBar.setTitle(mainTitle);
-        new FetchMoviesTask().execute(orderSelected);
+        if (null != mActionBar) {
+            mActionBar.setTitle(mainTitle);
+        }
+        new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(orderSelected);
     }
 
     /**
@@ -93,6 +111,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
     }
 
+    /**
+     * Create menu options
+     * @param menu App menu
+     *
+     * @return menu created
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -100,6 +124,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return true;
     }
 
+    /**
+     * Select a menu option
+     * @param item Menu item
+     *
+     * @return menu item selected
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -109,22 +139,30 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             orderSelected = MovieDbHelper.POPULAR_ORDER;
             mainTitle = getResources().getString(R.string.app_name) + " - " + popular;
             mActionBar.setTitle(mainTitle);
-            new FetchMoviesTask().execute(MovieDbHelper.POPULAR_ORDER);
+            new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(MovieDbHelper.POPULAR_ORDER);
             return true;
-        }
-
-        if (id == R.id.sort_rated) {
+        } else if (id == R.id.sort_rated) {
             String rated = getResources().getString(R.string.sort_rated);
             orderSelected = MovieDbHelper.RATED_ORDER;
             mainTitle = getResources().getString(R.string.app_name) + " - " + rated;
             mActionBar.setTitle(mainTitle);
-            new FetchMoviesTask().execute(MovieDbHelper.RATED_ORDER);
+            new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(MovieDbHelper.RATED_ORDER);
             return true;
+        } else if (id == R.id.sort_favorites) {
+            String favorites = getResources().getString(R.string.sort_favorites);
+            orderSelected = MovieDbHelper.FAVORITES_ORDER;
+            mainTitle = getResources().getString(R.string.app_name) + " - " + favorites;
+            mActionBar.setTitle(mainTitle);
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Save state of the app
+     * @param outState State
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(ORDER_SELECTED_KEY, orderSelected);
@@ -137,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      *
      * @return boolean
      */
-    private boolean isOnline() {
+    public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -146,46 +184,116 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     /**
-     * AsyncTask to fetch movies data
+     * Tasks to do when the background thread finishes fetching Movies data
+     * @param moviesList List of movies fetched
      */
-    private class FetchMoviesTask extends AsyncTask<String, Void, MoviesList> {
-
-        /**
-         * Tasks to do in background, like fetch movie thumbnails
-         * @param params Parameters
-         *
-         * @return List of movies
-         */
-        @Override
-        protected MoviesList doInBackground(String... params) {
-            if (params.length > 0) {
-                movieDbHelper.setOrder(params[0]);
-            }
-            MoviesList moviesList = null;
-            if (isOnline()) {
-                moviesList = movieDbHelper.getMovies();
-            }
-
-            return moviesList;
+    @Override
+    public void onDownloadComplete(MoviesList moviesList) {
+        if (moviesList == null || moviesList.getTotalResults() <= 0) {
+            mErrorMessageDisplay.setText(R.string.connection_error);
+            mErrorMessageDisplay.setVisibility(View.VISIBLE);
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+        } else {
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mMovieAdapter.setData(moviesList.getResults());
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         }
+    }
 
-        /**
-         * Tasks to be executed when doInBackground finishes
-         * @param moviesList Movies list, fetched from API
-         */
-        @Override
-        protected void onPostExecute(MoviesList moviesList) {
-            if (moviesList == null || moviesList.getTotalResults() <= 0) {
-                mErrorMessageDisplay.setText(R.string.connection_error);
-                mErrorMessageDisplay.setVisibility(View.VISIBLE);
-                mLoadingIndicator.setVisibility(View.INVISIBLE);
-                mRecyclerView.setVisibility(View.GONE);
-            } else {
-                mRecyclerView.setVisibility(View.VISIBLE);
-                mMovieAdapter.setData(moviesList.getResults());
-                mLoadingIndicator.setVisibility(View.INVISIBLE);
-                mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+    /**
+     * Create Database Loader
+     * @param id   ID
+     * @param args Arguments
+     *
+     * @return Cursor with loaded data
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<Cursor>(this) {
+
+            // Initialize a Cursor, this will hold all the task data
+            Cursor mVideoData = null;
+
+            /**
+             * called when a loader first starts loading data
+             */
+            @Override
+            protected void onStartLoading() {
+                if (mVideoData != null) {
+                    // Delivers any previously loaded data immediately
+                    deliverResult(mVideoData);
+                } else {
+                    // Force a new load
+                    forceLoad();
+                }
             }
+
+            /**
+             * Performs asynchronous loading of data
+             */
+            @Override
+            public Cursor loadInBackground() {
+                String selection = "";
+                String[] args = {};
+
+                try {
+                    return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                            null,
+                            selection,
+                            args,
+                            MovieContract.MovieEntry._ID);
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                    return null;
+                }
+            }
+
+            /**
+             * Sends the result of the load, a Cursor, to the registered listener
+             * @param data Cursor with returned data
+             */
+            public void deliverResult(Cursor data) {
+                mVideoData = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    /**
+     * Data is loaded
+     * @param loader Loader to call
+     * @param data   Data retrieved
+     */
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        loadMoviesList(data);
+    }
+
+    /**
+     * Loader reset
+     * @param loader Loader to call
+     */
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        loadMoviesList(null);
+    }
+
+    /**
+     * Fill Recyclerview with database data
+     * @param moviesList Cursor with data
+     */
+    private void loadMoviesList(Cursor moviesList) {
+        if (null != moviesList && moviesList.getCount() > 0) {
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+            mMovieAdapter.setCursorData(moviesList);
+        } else {
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_favorites), duration);
+            toast.show();
         }
     }
 }
