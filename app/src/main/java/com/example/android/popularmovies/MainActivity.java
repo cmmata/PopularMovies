@@ -1,5 +1,6 @@
 package com.example.android.popularmovies;
 
+import android.content.SharedPreferences;
 import android.support.v4.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
@@ -57,13 +58,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState != null && savedInstanceState.containsKey(ORDER_SELECTED_KEY)) {
-            orderSelected = savedInstanceState.getString(ORDER_SELECTED_KEY);
-        }
-        if(savedInstanceState != null && savedInstanceState.containsKey(TITLE_KEY)) {
-            mainTitle = savedInstanceState.getString(TITLE_KEY);
+        if(savedInstanceState != null) {
+            if(savedInstanceState.containsKey(ORDER_SELECTED_KEY)) {
+                orderSelected = savedInstanceState.getString(ORDER_SELECTED_KEY);
+            }
+            if(savedInstanceState.containsKey(TITLE_KEY)) {
+                mainTitle = savedInstanceState.getString(TITLE_KEY);
+            }
         } else {
-            mainTitle = getResources().getString(R.string.app_name) + " - " + getResources().getString(R.string.sort_popular);
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+            if (null != pref.getString(ORDER_SELECTED_KEY, null) && null != pref.getString(TITLE_KEY, null)) {
+                orderSelected = pref.getString(ORDER_SELECTED_KEY, null);
+                mainTitle = pref.getString(TITLE_KEY, null);
+            } else {
+                mainTitle = getResources().getString(R.string.app_name) + " - " + getResources().getString(R.string.sort_popular);
+            }
         }
         setContentView(R.layout.activity_main);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_main);
@@ -89,7 +98,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (null != mActionBar) {
             mActionBar.setTitle(mainTitle);
         }
-        new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(orderSelected);
+        if (orderSelected.equals(MovieDbHelper.FAVORITES_ORDER)) {
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+        } else {
+            new FetchMoviesTask(this, movieDbHelper, isOnline()).execute(orderSelected);
+        }
     }
 
     /**
@@ -165,9 +178,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      */
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putString(ORDER_SELECTED_KEY, orderSelected);
         outState.putString(TITLE_KEY, mainTitle);
-        super.onSaveInstanceState(outState);
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(ORDER_SELECTED_KEY, orderSelected);
+        editor.putString(TITLE_KEY, mainTitle);
+        editor.apply();
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        orderSelected = savedInstanceState.getString(ORDER_SELECTED_KEY);
+        mainTitle = savedInstanceState.getString(TITLE_KEY);
     }
 
     /**
@@ -285,15 +310,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      * @param moviesList Cursor with data
      */
     private void loadMoviesList(Cursor moviesList) {
-        if (null != moviesList && moviesList.getCount() > 0) {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-            mMovieAdapter.setCursorData(moviesList);
-        } else {
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_favorites), duration);
-            toast.show();
+        if (orderSelected.equals(MovieDbHelper.FAVORITES_ORDER)) {
+            if (null != moviesList && moviesList.getCount() > 0){
+                mRecyclerView.setVisibility(View.VISIBLE);
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+                mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+                mMovieAdapter.setCursorData(moviesList);
+            } else{
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_favorites), duration);
+                toast.show();
+            }
         }
     }
 }
