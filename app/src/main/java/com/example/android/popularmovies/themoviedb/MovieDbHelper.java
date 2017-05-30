@@ -136,7 +136,7 @@ public class MovieDbHelper {
             String movieDetails = NetworkUtils.getApiCallResult(movieDbApiUrl);
             movieResult = gson.fromJson(movieDetails, Movie.class);
         } else {
-            movieResult = new Movie(Integer.valueOf(movieId));
+            movieResult = movie;
         }
         //Get videos
         Uri movieDbApiUrlVideos = Uri.parse(API_URL).buildUpon()

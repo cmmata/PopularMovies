@@ -174,15 +174,17 @@ public class Movie {
     }
 
     public String getGenresString() {
-        StringBuilder genres = new StringBuilder();
+        StringBuilder genresReturn = new StringBuilder();
         String sep = "";
-        for (Genre genre : this.getGenres()) {
-            genres.append(sep);
-            genres.append(genre.getName());
-            sep = ", ";
+        if (null != this.getGenres() && !this.getGenres().isEmpty()) {
+            for (Genre genre : this.getGenres()) {
+                genresReturn.append(sep);
+                genresReturn.append(genre.getName());
+                sep = ", ";
+            }
         }
 
-        return genres.toString();
+        return genresReturn.toString();
     }
 
     public String getHomepage() {
